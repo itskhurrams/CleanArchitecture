@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EnterpriseLibrary.Data" Version="6.0.1304" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Clean.Architecture.Application\Clean.Architecture.Application.csproj" />
+    <ProjectReference Include="..\Clean.Architecture.Domain\Clean.Architecture.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
