@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlClient;
+
 namespace Clean.Architecture.Persistance.User
 {
     public class UserAccountData : IUserAccountData
@@ -399,9 +401,9 @@ namespace Clean.Architecture.Persistance.User
         {
             try
             {
-                using (DbConnection connection = (DbConnection)_database.CreateConnection())
+                using (SqlConnection connection = (SqlConnection)_database.CreateConnection())
                 {
-                    DbTransaction _transaction = null;
+                    SqlTransaction _transaction = null;
                     try
                     {
                         connection.Open();

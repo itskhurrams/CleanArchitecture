@@ -373,9 +373,9 @@ namespace Clean.Architecture.Persistance.Customer
         {
             try
             {
-                using (DbConnection connection = (DbConnection)_Database.CreateConnection())
+                using (SqlConnection connection = (SqlConnection)_Database.CreateConnection())
                 {
-                    DbTransaction _transaction = null;
+                    SqlTransaction _transaction = null;
                     try
                     {
                         connection.Open();
