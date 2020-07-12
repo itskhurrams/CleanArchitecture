@@ -1,6 +1,7 @@
 ﻿using Clean.Architecture.Application.Interfaces.Application.Customer;
-using Clean.Architecture.Application.Interfaces.Persistance.Customer;
 using Clean.Architecture.Domain.Customer;
+using Clean.Architecture.Domain.Interfaces.Customer;
+
 using System;
 using System.Collections.Generic;
 

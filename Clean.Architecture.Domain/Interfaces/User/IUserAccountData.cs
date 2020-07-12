@@ -1,7 +1,7 @@
 ﻿using Clean.Architecture.Domain.User;
 using System.Collections.Generic;
 
-namespace Clean.Architecture.Application.Interfaces.Persistance.User
+namespace Clean.Architecture.Domain.Interfaces.User
 {
     public interface IUserAccountData
     {

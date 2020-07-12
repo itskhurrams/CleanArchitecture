@@ -1,7 +1,7 @@
 ﻿using Clean.Architecture.Domain.Defination;
 using System.Collections.Generic;
 
-namespace Clean.Architecture.Application.Interfaces.Persistance.Defination
+namespace Clean.Architecture.Application.Domain.Defination
 {
     public interface IMeritalStatusData
     {

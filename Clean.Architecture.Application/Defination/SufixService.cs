@@ -1,6 +1,7 @@
 ﻿using Clean.Architecture.Application.Interfaces.Application.Defination;
-using Clean.Architecture.Application.Interfaces.Persistance.Defination;
 using Clean.Architecture.Domain.Defination;
+using Clean.Architecture.Domain.Interfaces.Defination;
+
 using System;
 using System.Collections.Generic;
 namespace Clean.Architecture.Application.Defination

@@ -1,6 +1,6 @@
 ﻿using Clean.Architecture.Domain.Defination;
 
-namespace Clean.Architecture.Application.Interfaces.Persistance.Defination
+namespace Clean.Architecture.Domain.Interfaces.Defination
 {
     public interface IAdminAccountData
     {

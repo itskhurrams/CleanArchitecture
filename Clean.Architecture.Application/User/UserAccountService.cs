@@ -1,5 +1,5 @@
 ﻿using Clean.Architecture.Application.Interfaces.Application.User;
-using Clean.Architecture.Application.Interfaces.Persistance.User;
+using Clean.Architecture.Domain.Interfaces.User;
 using Clean.Architecture.Domain.User;
 using System;
 

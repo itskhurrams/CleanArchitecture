@@ -1,5 +1,5 @@
-﻿using Clean.Architecture.Application.Interfaces.Application.Defination;
-using Clean.Architecture.Application.Interfaces.Persistance.Defination;
+﻿using Clean.Architecture.Application.Domain.Defination;
+using Clean.Architecture.Application.Interfaces.Application.Defination;
 using Clean.Architecture.Domain.Defination;
 using System;
 using System.Collections.Generic;

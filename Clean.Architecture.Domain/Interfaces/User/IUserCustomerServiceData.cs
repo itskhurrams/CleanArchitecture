@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Common;
 
-namespace Clean.Architecture.Application.Interfaces.Persistance.User
+namespace Clean.Architecture.Domain.Interfaces.User
 {
     public interface IUserCustomerServiceData
     {

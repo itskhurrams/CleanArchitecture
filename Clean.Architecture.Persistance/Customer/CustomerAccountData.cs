@@ -1,11 +1,11 @@
 ﻿using Microsoft.Practices.EnterpriseLibrary.Data;
-using Clean.Architecture.Application.Interfaces.Persistance.Customer;
 using Clean.Architecture.Domain.Customer;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using Clean.Architecture.Domain.Interfaces.Customer;
 
 namespace Clean.Architecture.Persistance.Customer
 {

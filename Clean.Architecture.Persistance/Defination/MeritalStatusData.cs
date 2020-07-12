@@ -1,10 +1,10 @@
 ﻿using Microsoft.Practices.EnterpriseLibrary.Data;
-using Clean.Architecture.Application.Interfaces.Persistance.Defination;
 using Clean.Architecture.Domain.Defination;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using Clean.Architecture.Application.Domain.Defination;
 
 namespace Clean.Architecture.Persistance.Defination
 {
