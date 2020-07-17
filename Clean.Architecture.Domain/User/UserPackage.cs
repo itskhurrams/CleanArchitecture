@@ -1,9 +1,7 @@
 ﻿using System;
 
-namespace Clean.Architecture.Domain.User
-{
-    public class UserPackage
-    {
+namespace Clean.Architecture.Domain.User {
+    public class UserPackage {
         public long ID { get; set; }
         public long UserId { get; set; }
         public int PackageId { get; set; }

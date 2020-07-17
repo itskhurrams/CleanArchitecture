@@ -1,9 +1,7 @@
 ﻿using System;
 
-namespace Clean.Architecture.Domain.User
-{
-    public class UserCustomerService
-    {
+namespace Clean.Architecture.Domain.User {
+    public class UserCustomerService {
         public long ID { get; set; }
         public long UserId { get; set; }
         public long CustomerId { get; set; }

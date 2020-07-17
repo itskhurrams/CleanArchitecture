@@ -1,18 +1,17 @@
-﻿using Microsoft.Practices.EnterpriseLibrary.Data;
-using Clean.Architecture.Domain.Defination;
+﻿using Clean.Architecture.Domain.Defination;
+using Clean.Architecture.Domain.Interfaces.Defination;
+
+using Microsoft.Practices.EnterpriseLibrary.Data;
+
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using Clean.Architecture.Domain.Interfaces.Defination;
 
-namespace Clean.Architecture.Persistance.Defination
-{
-    public class PrefixData : IPrefixData
-    {
+namespace Clean.Architecture.Persistance.Defination {
+    public class PrefixData : IPrefixData {
         private readonly Database _Database;
-        public PrefixData(Database Database)
-        {
+        public PrefixData(Database Database) {
             _Database = Database;
         }
         #region SQL Procedures
@@ -25,17 +24,12 @@ namespace Clean.Architecture.Persistance.Defination
         private const string ISACTIVE = "IsActive";
         #endregion Parameters
         #region Private Functions
-        private IEnumerable<Prefix> GetActivePrefixs()
-        {
-            try
-            {
+        private IEnumerable<Prefix> GetActivePrefixs() {
+            try {
                 List<Prefix> PrefixList = null;
-                using (DbCommand dbcmdPrefix = _Database.GetStoredProcCommand(PROC_PREFIX_GETALL))
-                {
-                    using (IDataReader reader = _Database.ExecuteReader(dbcmdPrefix))
-                    {
-                        if (PrefixList == null)
-                        {
+                using (DbCommand dbcmdPrefix = _Database.GetStoredProcCommand(PROC_PREFIX_GETALL)) {
+                    using (IDataReader reader = _Database.ExecuteReader(dbcmdPrefix)) {
+                        if (PrefixList == null) {
                             PrefixList = new List<Prefix>();
                         }
                         PrefixList.Add(Mapper(reader));
@@ -43,79 +37,61 @@ namespace Clean.Architecture.Persistance.Defination
                 }
                 return PrefixList;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 throw ex;
             }
         }
-        private Prefix GetPrefix(short Id)
-        {
-            try
-            {
+        private Prefix GetPrefix(short Id) {
+            try {
                 Prefix Prefix = null;
-                using (DbCommand dbcmdPrefix = _Database.GetStoredProcCommand(PROC_PREFIX_GETBYID))
-                {
+                using (DbCommand dbcmdPrefix = _Database.GetStoredProcCommand(PROC_PREFIX_GETBYID)) {
                     _Database.AddInParameter(dbcmdPrefix, ID, DbType.Int16, Id);
-                    using (IDataReader reader = _Database.ExecuteReader(dbcmdPrefix))
-                    {
+                    using (IDataReader reader = _Database.ExecuteReader(dbcmdPrefix)) {
                         Prefix = Mapper(reader);
                     }
                 }
                 return Prefix;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 throw ex;
             }
         }
-        private Prefix Mapper(IDataReader reader)
-        {
-            try
-            {
+        private Prefix Mapper(IDataReader reader) {
+            try {
                 Prefix _Prefix = new Prefix();
-                if (reader[ID] != null && reader[ID] != DBNull.Value)
-                {
+                if (reader[ID] != null && reader[ID] != DBNull.Value) {
                     _Prefix.ID = Common.Conversion.ToShort(reader[ID]);
                 }
 
-                if (reader[PREFIXTITLE] != null && reader[PREFIXTITLE] != DBNull.Value)
-                {
+                if (reader[PREFIXTITLE] != null && reader[PREFIXTITLE] != DBNull.Value) {
                     _Prefix.PrefixTitle = Common.Conversion.ToString(reader[PREFIXTITLE]);
                 }
 
-                if (reader[ISACTIVE] != null && reader[ISACTIVE] != DBNull.Value)
-                {
+                if (reader[ISACTIVE] != null && reader[ISACTIVE] != DBNull.Value) {
                     _Prefix.IsActive = Common.Conversion.ToBool(reader[ISACTIVE]);
                 }
 
                 return _Prefix;
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 throw exception;
             }
         }
         #endregion Private Functions
         #region Public Functions
-        public Prefix GetPrefixById(short Id)
-        {
-            try
-            {
+        public Prefix GetPrefixById(short Id) {
+            try {
                 return GetPrefix(Id);
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 throw exception;
             }
         }
-        public IEnumerable<Prefix> GetPrefixes()
-        {
-            try
-            {
+        public IEnumerable<Prefix> GetPrefixes() {
+            try {
                 return GetActivePrefixs();
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 throw exception;
             }
         }

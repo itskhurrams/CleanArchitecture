@@ -1,10 +1,9 @@
 ﻿using Clean.Architecture.Domain.Customer;
+
 using System.Collections.Generic;
 
-namespace Clean.Architecture.Domain.Interfaces.Customer
-{
-    public interface ICustomerAccountData
-    {
+namespace Clean.Architecture.Domain.Interfaces.Customer {
+    public interface ICustomerAccountData {
         IEnumerable<CustomerAccount> GetCustomers();
         CustomerAccount GetCustomerById(long Id);
         long SaveCustomer(CustomerAccount customerAccount);

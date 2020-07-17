@@ -1,22 +1,21 @@
-﻿using Microsoft.Practices.EnterpriseLibrary.Data;
+﻿using Clean.Architecture.Domain.Interfaces.User;
 using Clean.Architecture.Domain.User;
+
+using Microsoft.Practices.EnterpriseLibrary.Data;
+
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
-using Clean.Architecture.Domain.Interfaces.User;
 
-namespace Clean.Architecture.Persistance.User
-{
-    public class UserAccountData : IUserAccountData
-    {
+namespace Clean.Architecture.Persistance.User {
+    public class UserAccountData : IUserAccountData {
         private readonly Database _database;
         private readonly IUserAddressData _userAddressData;
         private readonly IUserPackageData _userPackageData;
         private readonly IUserCustomerServiceData _userCustomerServiceData;
-        public UserAccountData(Database database, IUserAddressData userAddressData, IUserPackageData userPackageData, IUserCustomerServiceData userCustomerServiceData)
-        {
+        public UserAccountData(Database database, IUserAddressData userAddressData, IUserPackageData userPackageData, IUserCustomerServiceData userCustomerServiceData) {
             _database = database;
             _userAddressData = userAddressData;
             _userPackageData = userPackageData;
@@ -54,12 +53,9 @@ namespace Clean.Architecture.Persistance.User
         private const string UPDATEDDATE = "UpdatedDate";
         #endregion Parameters
         #region Private Functions
-        private long Insert(UserAccount _UserAccount, DbTransaction dbTransaction = null)
-        {
-            try
-            {
-                using (DbCommand dbCommand = _database.GetStoredProcCommand(PROC_USERACCOUNT_INSERT))
-                {
+        private long Insert(UserAccount _UserAccount, DbTransaction dbTransaction = null) {
+            try {
+                using (DbCommand dbCommand = _database.GetStoredProcCommand(PROC_USERACCOUNT_INSERT)) {
                     _database.AddInParameter(dbCommand, ID, DbType.Int64, _UserAccount.ID);
                     _database.AddInParameter(dbCommand, USERNAME, DbType.String, _UserAccount.UserName);
                     _database.AddInParameter(dbCommand, PASSCODE, DbType.String, _UserAccount.PassCode);
@@ -77,27 +73,21 @@ namespace Clean.Architecture.Persistance.User
                     _database.AddInParameter(dbCommand, MARITALSTATUSTITLE, DbType.String, _UserAccount.MaritalStatusTitle);
                     _database.AddInParameter(dbCommand, ISACTIVE, DbType.Boolean, _UserAccount.IsActive);
                     _database.AddInParameter(dbCommand, CREATEDBY, DbType.String, _UserAccount.CreatedBy);
-                    if (dbTransaction == null)
-                    {
+                    if (dbTransaction == null) {
                         return Common.Conversion.ToLong(_database.ExecuteScalar(dbCommand));
                     }
-                    else
-                    {
+                    else {
                         return Common.Conversion.ToLong(_database.ExecuteScalar(dbCommand, dbTransaction));
                     }
                 }
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 throw new Exception("Add", ex);
             }
         }
-        private long Update(UserAccount _UserAccount, DbTransaction dbTransaction = null)
-        {
-            try
-            {
-                using (DbCommand dbCommand = _database.GetStoredProcCommand(PROC_USERACCOUNT_UPDATE))
-                {
+        private long Update(UserAccount _UserAccount, DbTransaction dbTransaction = null) {
+            try {
+                using (DbCommand dbCommand = _database.GetStoredProcCommand(PROC_USERACCOUNT_UPDATE)) {
                     _database.AddInParameter(dbCommand, ID, DbType.Int64, _UserAccount.ID);
                     _database.AddInParameter(dbCommand, USERNAME, DbType.String, _UserAccount.UserName);
                     _database.AddInParameter(dbCommand, PASSCODE, DbType.String, _UserAccount.PassCode);
@@ -118,76 +108,56 @@ namespace Clean.Architecture.Persistance.User
                     _database.AddInParameter(dbCommand, CREATEDDATE, DbType.DateTime, _UserAccount.CreatedDate);
                     _database.AddInParameter(dbCommand, UPDATEDBY, DbType.String, _UserAccount.UpdatedBy);
                     _database.AddInParameter(dbCommand, UPDATEDDATE, DbType.DateTime, _UserAccount.UpdatedDate);
-                    if (dbTransaction == null)
-                    {
+                    if (dbTransaction == null) {
                         return Common.Conversion.ToLong(_database.ExecuteScalar(dbCommand));
                     }
-                    else
-                    {
+                    else {
                         return Common.Conversion.ToLong(_database.ExecuteScalar(dbCommand, dbTransaction));
                     }
                 }
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 throw new Exception("Update", ex);
             }
         }
-        private long Delete(long Id, DbTransaction dbTransaction = null)
-        {
-            try
-            {
-                using (DbCommand dbCommand = _database.GetStoredProcCommand(PROC_USERACCOUNT_DELETE))
-                {
+        private long Delete(long Id, DbTransaction dbTransaction = null) {
+            try {
+                using (DbCommand dbCommand = _database.GetStoredProcCommand(PROC_USERACCOUNT_DELETE)) {
                     _database.AddInParameter(dbCommand, ID, DbType.Int64, Id);
-                    if (dbTransaction == null)
-                    {
+                    if (dbTransaction == null) {
                         return _database.ExecuteNonQuery(dbCommand);
                     }
-                    else
-                    {
+                    else {
                         return _database.ExecuteNonQuery(dbCommand, dbTransaction);
                     }
                 }
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 throw new Exception("Delete", ex);
             }
         }
-        private long Available(string Username, DbTransaction dbTransaction = null)
-        {
-            try
-            {
-                using (DbCommand dbCommand = _database.GetStoredProcCommand(PROC_USERACCOUNT_CHECKAVAILABILITY))
-                {
+        private long Available(string Username, DbTransaction dbTransaction = null) {
+            try {
+                using (DbCommand dbCommand = _database.GetStoredProcCommand(PROC_USERACCOUNT_CHECKAVAILABILITY)) {
                     _database.AddInParameter(dbCommand, USERNAME, DbType.String, Username);
-                    if (dbTransaction == null)
-                    {
+                    if (dbTransaction == null) {
                         return _database.ExecuteNonQuery(dbCommand);
                     }
-                    else
-                    {
+                    else {
                         return _database.ExecuteNonQuery(dbCommand, dbTransaction);
                     }
                 }
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 throw new Exception("Available", ex);
             }
         }
-        private IEnumerable<UserAccount> GetActiveUser()
-        {
-            try
-            {
+        private IEnumerable<UserAccount> GetActiveUser() {
+            try {
                 List<UserAccount> userAccountList = null;
-                using (DbCommand dbcmdUserAccount = _database.GetStoredProcCommand(PROC_USERACCOUNT_GETALL))
-                {
-                    using (IDataReader reader = _database.ExecuteReader(dbcmdUserAccount))
-                    {
-                        if (userAccountList == null)
-                        {
+                using (DbCommand dbcmdUserAccount = _database.GetStoredProcCommand(PROC_USERACCOUNT_GETALL)) {
+                    using (IDataReader reader = _database.ExecuteReader(dbcmdUserAccount)) {
+                        if (userAccountList == null) {
                             userAccountList = new List<UserAccount>();
                         }
                         userAccountList.Add(Mapper(reader));
@@ -195,226 +165,169 @@ namespace Clean.Architecture.Persistance.User
                 }
                 return userAccountList;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 throw ex;
             }
         }
-        private UserAccount GetUser(long Id)
-        {
-            try
-            {
+        private UserAccount GetUser(long Id) {
+            try {
                 UserAccount userAccount = null;
-                using (DbCommand dbcmdUserAccount = _database.GetStoredProcCommand(PROC_USERACCOUNT_GETBYID))
-                {
+                using (DbCommand dbcmdUserAccount = _database.GetStoredProcCommand(PROC_USERACCOUNT_GETBYID)) {
                     _database.AddInParameter(dbcmdUserAccount, ID, DbType.Int64, Id);
-                    using (IDataReader reader = _database.ExecuteReader(dbcmdUserAccount))
-                    {
+                    using (IDataReader reader = _database.ExecuteReader(dbcmdUserAccount)) {
                         userAccount = Mapper(reader);
                     }
                 }
                 return userAccount;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 throw ex;
             }
         }
-        private UserAccount GetUser(string userName, string passWord)
-        {
-            try
-            {
+        private UserAccount GetUser(string userName, string passWord) {
+            try {
                 UserAccount userAccount = null;
-                using (DbCommand dbcmdUserAccount = _database.GetStoredProcCommand(PROC_USERACCOUNT_LOGIN))
-                {
+                using (DbCommand dbcmdUserAccount = _database.GetStoredProcCommand(PROC_USERACCOUNT_LOGIN)) {
                     _database.AddInParameter(dbcmdUserAccount, USERNAME, DbType.String, userName);
                     _database.AddInParameter(dbcmdUserAccount, PASSCODE, DbType.String, passWord);
-                    using (IDataReader reader = _database.ExecuteReader(dbcmdUserAccount))
-                    {
+                    using (IDataReader reader = _database.ExecuteReader(dbcmdUserAccount)) {
                         userAccount = Mapper(reader);
                     }
                 }
                 return userAccount;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 throw ex;
             }
         }
-        private UserAccount Mapper(IDataReader reader)
-        {
-            try
-            {
+        private UserAccount Mapper(IDataReader reader) {
+            try {
                 UserAccount _UserAccount = new UserAccount();
-                if (reader[ID] != null && reader[ID] != DBNull.Value)
-                {
+                if (reader[ID] != null && reader[ID] != DBNull.Value) {
                     _UserAccount.ID = Common.Conversion.ToLong(reader[ID]);
                 }
-                if (reader[USERNAME] != null && reader[USERNAME] != DBNull.Value)
-                {
+                if (reader[USERNAME] != null && reader[USERNAME] != DBNull.Value) {
                     _UserAccount.UserName = Common.Conversion.ToString(reader[USERNAME]);
                 }
-                if (reader[PASSCODE] != null && reader[PASSCODE] != DBNull.Value)
-                {
+                if (reader[PASSCODE] != null && reader[PASSCODE] != DBNull.Value) {
                     _UserAccount.PassCode = Common.Conversion.ToString(reader[PASSCODE]);
                 }
-                if (reader[PREFIXID] != null && reader[PREFIXID] != DBNull.Value)
-                {
+                if (reader[PREFIXID] != null && reader[PREFIXID] != DBNull.Value) {
                     _UserAccount.PrefixId = Common.Conversion.ToShort(reader[PREFIXID]);
                 }
-                if (reader[PREFIXTITLE] != null && reader[PREFIXTITLE] != DBNull.Value)
-                {
+                if (reader[PREFIXTITLE] != null && reader[PREFIXTITLE] != DBNull.Value) {
                     _UserAccount.PrefixTitle = Common.Conversion.ToString(reader[PREFIXTITLE]);
                 }
-                if (reader[FIRSTNAME] != null && reader[FIRSTNAME] != DBNull.Value)
-                {
+                if (reader[FIRSTNAME] != null && reader[FIRSTNAME] != DBNull.Value) {
                     _UserAccount.FirstName = Common.Conversion.ToString(reader[FIRSTNAME]);
                 }
-                if (reader[MIDDLENAME] != null && reader[MIDDLENAME] != DBNull.Value)
-                {
+                if (reader[MIDDLENAME] != null && reader[MIDDLENAME] != DBNull.Value) {
                     _UserAccount.MiddleName = Common.Conversion.ToString(reader[MIDDLENAME]);
                 }
-                if (reader[LASTNAME] != null && reader[LASTNAME] != DBNull.Value)
-                {
+                if (reader[LASTNAME] != null && reader[LASTNAME] != DBNull.Value) {
                     _UserAccount.LastName = Common.Conversion.ToString(reader[LASTNAME]);
                 }
-                if (reader[SUFIXID] != null && reader[SUFIXID] != DBNull.Value)
-                {
+                if (reader[SUFIXID] != null && reader[SUFIXID] != DBNull.Value) {
                     _UserAccount.SufixId = Common.Conversion.ToShort(reader[SUFIXID]);
                 }
-                if (reader[SUFIXTITLE] != null && reader[SUFIXTITLE] != DBNull.Value)
-                {
+                if (reader[SUFIXTITLE] != null && reader[SUFIXTITLE] != DBNull.Value) {
                     _UserAccount.SufixTitle = Common.Conversion.ToString(reader[SUFIXTITLE]);
                 }
-                if (reader[GENDER] != null && reader[GENDER] != DBNull.Value)
-                {
+                if (reader[GENDER] != null && reader[GENDER] != DBNull.Value) {
                     _UserAccount.Gender = Common.Conversion.ToString(reader[GENDER]);
                 }
-                if (reader[DOB] != null && reader[DOB] != DBNull.Value)
-                {
+                if (reader[DOB] != null && reader[DOB] != DBNull.Value) {
                     _UserAccount.DOB = Common.Conversion.ToDateTime(reader[DOB]);
                 }
-                if (reader[CELLNUMBER] != null && reader[CELLNUMBER] != DBNull.Value)
-                {
+                if (reader[CELLNUMBER] != null && reader[CELLNUMBER] != DBNull.Value) {
                     _UserAccount.CellNumber = Common.Conversion.ToString(reader[CELLNUMBER]);
                 }
-                if (reader[MARITALSTATUSID] != null && reader[MARITALSTATUSID] != DBNull.Value)
-                {
+                if (reader[MARITALSTATUSID] != null && reader[MARITALSTATUSID] != DBNull.Value) {
                     _UserAccount.MaritalStatusId = Common.Conversion.ToShort(reader[MARITALSTATUSID]);
                 }
-                if (reader[MARITALSTATUSTITLE] != null && reader[MARITALSTATUSTITLE] != DBNull.Value)
-                {
+                if (reader[MARITALSTATUSTITLE] != null && reader[MARITALSTATUSTITLE] != DBNull.Value) {
                     _UserAccount.MaritalStatusTitle = Common.Conversion.ToString(reader[MARITALSTATUSTITLE]);
                 }
-                if (reader[ISACTIVE] != null && reader[ISACTIVE] != DBNull.Value)
-                {
+                if (reader[ISACTIVE] != null && reader[ISACTIVE] != DBNull.Value) {
                     _UserAccount.IsActive = Common.Conversion.ToBool(reader[ISACTIVE]);
                 }
-                if (reader[CREATEDBY] != null && reader[CREATEDBY] != DBNull.Value)
-                {
+                if (reader[CREATEDBY] != null && reader[CREATEDBY] != DBNull.Value) {
                     _UserAccount.CreatedBy = Common.Conversion.ToString(reader[CREATEDBY]);
                 }
-                if (reader[CREATEDDATE] != null && reader[CREATEDDATE] != DBNull.Value)
-                {
+                if (reader[CREATEDDATE] != null && reader[CREATEDDATE] != DBNull.Value) {
                     _UserAccount.CreatedDate = Common.Conversion.ToDateTime(reader[CREATEDDATE]);
                 }
-                if (reader[UPDATEDBY] != null && reader[UPDATEDBY] != DBNull.Value)
-                {
+                if (reader[UPDATEDBY] != null && reader[UPDATEDBY] != DBNull.Value) {
                     _UserAccount.UpdatedBy = Common.Conversion.ToString(reader[UPDATEDBY]);
                 }
-                if (reader[UPDATEDDATE] != null && reader[UPDATEDDATE] != DBNull.Value)
-                {
+                if (reader[UPDATEDDATE] != null && reader[UPDATEDDATE] != DBNull.Value) {
                     _UserAccount.UpdatedDate = Common.Conversion.ToDateTime(reader[UPDATEDDATE]);
                 }
                 return _UserAccount;
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 throw exception;
             }
         }
         #endregion Private Functions
         #region Public Functions
-        public bool CheckAvailability(string Username)
-        {
-            try
-            {
-                if (Available(Username) > 0)
-                {
+        public bool CheckAvailability(string Username) {
+            try {
+                if (Available(Username) > 0) {
                     return false;
                 }
-                else
-                {
+                else {
                     return true;
                 }
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 throw exception;
             }
         }
-        public long DeleteUser(long Id)
-        {
-            try
-            {
+        public long DeleteUser(long Id) {
+            try {
                 return Delete(Id);
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 throw exception;
             }
         }
-        public UserAccount GetUserById(long Id)
-        {
-            try
-            {
+        public UserAccount GetUserById(long Id) {
+            try {
                 return GetUser(Id);
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 throw exception;
             }
         }
-        public IEnumerable<UserAccount> GetUsers()
-        {
-            try
-            {
+        public IEnumerable<UserAccount> GetUsers() {
+            try {
                 return GetUsers();
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 throw exception;
             }
         }
-        public UserAccount Login(string UserName, string Password)
-        {
-            try
-            {
+        public UserAccount Login(string UserName, string Password) {
+            try {
                 return GetUser(UserName, Password);
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 throw exception;
             }
         }
-        public long SaveUser(UserAccount _userAccount)
-        {
-            try
-            {
-                using (SqlConnection connection = (SqlConnection)_database.CreateConnection())
-                {
+        public long SaveUser(UserAccount _userAccount) {
+            try {
+                using (SqlConnection connection = (SqlConnection)_database.CreateConnection()) {
                     SqlTransaction _transaction = null;
-                    try
-                    {
+                    try {
                         connection.Open();
                         _transaction = connection.BeginTransaction();
                         long UserId = 0;
-                        if (_userAccount.ID == 0)
-                        {
+                        if (_userAccount.ID == 0) {
                             UserId = Insert(_userAccount, _transaction);
                         }
-                        else
-                        {
+                        else {
                             UserId = Update(_userAccount, _transaction);
                         }
                         _userAddressData.SaveUserAddresses(UserId, _userAccount.UserAddressList, _transaction);
@@ -423,19 +336,16 @@ namespace Clean.Architecture.Persistance.User
                         _transaction.Commit();
                         return UserId;
                     }
-                    catch
-                    {
+                    catch {
                         _transaction.Rollback();
                         throw;
                     }
-                    finally
-                    {
+                    finally {
                         connection.Close();
                     }
                 }
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 throw exception;
             }
         }

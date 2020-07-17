@@ -1,9 +1,7 @@
 ﻿using System;
 
-namespace Clean.Architecture.Domain.Defination
-{
-    public class Package
-    {
+namespace Clean.Architecture.Domain.Defination {
+    public class Package {
         public int ID { get; set; }
         public string Title { get; set; }
         public string Detail { get; set; }

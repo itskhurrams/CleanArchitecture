@@ -4,23 +4,17 @@ using Clean.Architecture.Domain.Interfaces.Defination;
 
 using System;
 using System.Collections.Generic;
-namespace Clean.Architecture.Application.Defination
-{
-    public class AddressTypeService : IAddressTypeService
-    {
+namespace Clean.Architecture.Application.Defination {
+    public class AddressTypeService : IAddressTypeService {
         private readonly IAddressTypeData _addressTypeData;
-        public AddressTypeService(IAddressTypeData addressTypeData)
-        {
+        public AddressTypeService(IAddressTypeData addressTypeData) {
             _addressTypeData = addressTypeData;
         }
-        public IEnumerable<AddressType> GetAddressTypes()
-        {
-            try
-            {
+        public IEnumerable<AddressType> GetAddressTypes() {
+            try {
                 return _addressTypeData.GetAddressTypes();
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 throw exception;
             }
         }

@@ -1,9 +1,7 @@
 ﻿using System;
 
-namespace Clean.Architecture.Domain.User
-{
-    public class UserAddress
-    {
+namespace Clean.Architecture.Domain.User {
+    public class UserAddress {
         public long ID { get; set; }
         public short AddressTypeId { get; set; }
         public long UserId { get; set; }

@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Clean.Architecture.Domain.Customer
-{
-    public class CustomerService
-    {
+namespace Clean.Architecture.Domain.Customer {
+    public class CustomerService {
         public long ID { get; set; }
         public long CustomerId { get; set; }
         public short BusinessTypeId { get; set; }

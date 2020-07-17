@@ -1,18 +1,17 @@
-﻿using Microsoft.Practices.EnterpriseLibrary.Data;
-using Clean.Architecture.Domain.Defination;
+﻿using Clean.Architecture.Domain.Defination;
+using Clean.Architecture.Domain.Interfaces.Defination;
+
+using Microsoft.Practices.EnterpriseLibrary.Data;
+
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using Clean.Architecture.Domain.Interfaces.Defination;
 
-namespace Clean.Architecture.Persistance.Defination
-{
-    public class PackageData : IPackageData
-    {
+namespace Clean.Architecture.Persistance.Defination {
+    public class PackageData : IPackageData {
         private readonly Database _Database;
-        public PackageData(Database Database)
-        {
+        public PackageData(Database Database) {
             _Database = Database;
         }
         #region SQL Procedures
@@ -30,17 +29,12 @@ namespace Clean.Architecture.Persistance.Defination
         private const string UPDATEDDATE = "UpdatedDate";
         #endregion Parameters
         #region Private Functions
-        private IEnumerable<Package> GetActivePackages()
-        {
-            try
-            {
+        private IEnumerable<Package> GetActivePackages() {
+            try {
                 List<Package> PackageList = null;
-                using (DbCommand dbcmdPackage = _Database.GetStoredProcCommand(PROC_PACKAGE_GETALL))
-                {
-                    using (IDataReader reader = _Database.ExecuteReader(dbcmdPackage))
-                    {
-                        if (PackageList == null)
-                        {
+                using (DbCommand dbcmdPackage = _Database.GetStoredProcCommand(PROC_PACKAGE_GETALL)) {
+                    using (IDataReader reader = _Database.ExecuteReader(dbcmdPackage)) {
+                        if (PackageList == null) {
                             PackageList = new List<Package>();
                         }
                         PackageList.Add(Mapper(reader));
@@ -48,96 +42,73 @@ namespace Clean.Architecture.Persistance.Defination
                 }
                 return PackageList;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 throw ex;
             }
         }
-        private Package GetPackage(int Id)
-        {
-            try
-            {
+        private Package GetPackage(int Id) {
+            try {
                 Package Package = null;
-                using (DbCommand dbcmdPackage = _Database.GetStoredProcCommand(PROC_PACKAGE_GETBYID))
-                {
+                using (DbCommand dbcmdPackage = _Database.GetStoredProcCommand(PROC_PACKAGE_GETBYID)) {
                     _Database.AddInParameter(dbcmdPackage, ID, DbType.Int16, Id);
-                    using (IDataReader reader = _Database.ExecuteReader(dbcmdPackage))
-                    {
+                    using (IDataReader reader = _Database.ExecuteReader(dbcmdPackage)) {
                         Package = Mapper(reader);
                     }
                 }
                 return Package;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 throw ex;
             }
         }
-        private Package Mapper(IDataReader reader)
-        {
-            try
-            {
+        private Package Mapper(IDataReader reader) {
+            try {
                 Package _Package = new Package();
-                if (reader[ID] != null && reader[ID] != DBNull.Value)
-                {
+                if (reader[ID] != null && reader[ID] != DBNull.Value) {
                     _Package.ID = Common.Conversion.ToInt(reader[ID]);
                 }
-                if (reader[TITLE] != null && reader[TITLE] != DBNull.Value)
-                {
+                if (reader[TITLE] != null && reader[TITLE] != DBNull.Value) {
                     _Package.Title = Common.Conversion.ToString(reader[TITLE]);
                 }
-                if (reader[DETAIL] != null && reader[DETAIL] != DBNull.Value)
-                {
+                if (reader[DETAIL] != null && reader[DETAIL] != DBNull.Value) {
                     _Package.Detail = Common.Conversion.ToString(reader[DETAIL]);
                 }
-                if (reader[ISACTIVE] != null && reader[ISACTIVE] != DBNull.Value)
-                {
+                if (reader[ISACTIVE] != null && reader[ISACTIVE] != DBNull.Value) {
                     _Package.IsActive = Common.Conversion.ToBool(reader[ISACTIVE]);
                 }
-                if (reader[CREATEDBY] != null && reader[CREATEDBY] != DBNull.Value)
-                {
+                if (reader[CREATEDBY] != null && reader[CREATEDBY] != DBNull.Value) {
                     _Package.CreatedBy = Common.Conversion.ToString(reader[CREATEDBY]);
                 }
-                if (reader[CREATEDDATE] != null && reader[CREATEDDATE] != DBNull.Value)
-                {
+                if (reader[CREATEDDATE] != null && reader[CREATEDDATE] != DBNull.Value) {
                     _Package.CreatedDate = Common.Conversion.ToDateTime(reader[CREATEDDATE]);
                 }
-                if (reader[UPDATEDBY] != null && reader[UPDATEDBY] != DBNull.Value)
-                {
+                if (reader[UPDATEDBY] != null && reader[UPDATEDBY] != DBNull.Value) {
                     _Package.UpdatedBy = Common.Conversion.ToString(reader[UPDATEDBY]);
                 }
-                if (reader[UPDATEDDATE] != null && reader[UPDATEDDATE] != DBNull.Value)
-                {
+                if (reader[UPDATEDDATE] != null && reader[UPDATEDDATE] != DBNull.Value) {
                     _Package.UpdatedDate = Common.Conversion.ToDateTime(reader[UPDATEDDATE]);
                 }
                 return _Package;
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 throw exception;
             }
         }
         #endregion Private Functions
         #region Public Functions
-        public Package GetPackageById(int Id)
-        {
-            try
-            {
+        public Package GetPackageById(int Id) {
+            try {
                 return GetPackage(Id);
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 throw exception;
             }
         }
-        public IEnumerable<Package> GetPackages()
-        {
-            try
-            {
+        public IEnumerable<Package> GetPackages() {
+            try {
                 return GetActivePackages();
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 throw exception;
             }
         }

@@ -1,7 +1,5 @@
-﻿namespace Clean.Architecture.Application.Interfaces.Infastructure.Logging
-{
-    public interface ILoggerManager
-    {
+﻿namespace Clean.Architecture.Application.Interfaces.Infastructure.Logging {
+    public interface ILoggerManager {
         void LogInfo(string message);
         void LogWarn(string message);
         void LogDebug(string message);

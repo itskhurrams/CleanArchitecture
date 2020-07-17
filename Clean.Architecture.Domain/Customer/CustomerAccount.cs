@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Clean.Architecture.Domain.Customer
-{
-    public class CustomerAccount
-    {
+namespace Clean.Architecture.Domain.Customer {
+    public class CustomerAccount {
         public long ID { get; set; }
         public string UserName { get; set; }
         public string PassCode { get; set; }

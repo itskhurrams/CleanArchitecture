@@ -1,18 +1,17 @@
-﻿using Microsoft.Practices.EnterpriseLibrary.Data;
-using Clean.Architecture.Domain.Defination;
+﻿using Clean.Architecture.Domain.Defination;
+using Clean.Architecture.Domain.Interfaces.Defination;
+
+using Microsoft.Practices.EnterpriseLibrary.Data;
+
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using Clean.Architecture.Domain.Interfaces.Defination;
 
-namespace Clean.Architecture.Persistance.Defination
-{
-    public class BusinessTypeData : IBusinessTypeData
-    {
+namespace Clean.Architecture.Persistance.Defination {
+    public class BusinessTypeData : IBusinessTypeData {
         private readonly Database _Database;
-        public BusinessTypeData(Database Database)
-        {
+        public BusinessTypeData(Database Database) {
             _Database = Database;
         }
         #region SQL Procedures
@@ -26,17 +25,12 @@ namespace Clean.Architecture.Persistance.Defination
         private const string ISACTIVE = "IsActive";
         #endregion Parameters
         #region Private Functions
-        private IEnumerable<BusinessType> GetActiveBusinessTypes()
-        {
-            try
-            {
+        private IEnumerable<BusinessType> GetActiveBusinessTypes() {
+            try {
                 List<BusinessType> BusinessTypeList = null;
-                using (DbCommand dbcmdBusinessType = _Database.GetStoredProcCommand(PROC_BUSINESSTYPE_GETALL))
-                {
-                    using (IDataReader reader = _Database.ExecuteReader(dbcmdBusinessType))
-                    {
-                        if (BusinessTypeList == null)
-                        {
+                using (DbCommand dbcmdBusinessType = _Database.GetStoredProcCommand(PROC_BUSINESSTYPE_GETALL)) {
+                    using (IDataReader reader = _Database.ExecuteReader(dbcmdBusinessType)) {
+                        if (BusinessTypeList == null) {
                             BusinessTypeList = new List<BusinessType>();
                         }
                         BusinessTypeList.Add(Mapper(reader));
@@ -44,84 +38,65 @@ namespace Clean.Architecture.Persistance.Defination
                 }
                 return BusinessTypeList;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 throw ex;
             }
         }
-        private BusinessType GetBusinessType(short Id)
-        {
-            try
-            {
+        private BusinessType GetBusinessType(short Id) {
+            try {
                 BusinessType BusinessType = null;
-                using (DbCommand dbcmdBusinessType = _Database.GetStoredProcCommand(PROC_BUSINESSTYPE_GETBYID))
-                {
+                using (DbCommand dbcmdBusinessType = _Database.GetStoredProcCommand(PROC_BUSINESSTYPE_GETBYID)) {
                     _Database.AddInParameter(dbcmdBusinessType, ID, DbType.Int16, Id);
-                    using (IDataReader reader = _Database.ExecuteReader(dbcmdBusinessType))
-                    {
+                    using (IDataReader reader = _Database.ExecuteReader(dbcmdBusinessType)) {
                         BusinessType = Mapper(reader);
                     }
                 }
                 return BusinessType;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 throw ex;
             }
         }
-        private BusinessType Mapper(IDataReader reader)
-        {
-            try
-            {
+        private BusinessType Mapper(IDataReader reader) {
+            try {
                 BusinessType _BusinessType = new BusinessType();
-                if (reader[ID] != null && reader[ID] != DBNull.Value)
-                {
+                if (reader[ID] != null && reader[ID] != DBNull.Value) {
                     _BusinessType.ID = Common.Conversion.ToShort(reader[ID]);
                 }
 
-                if (reader[BUSINESSTYPETITLE] != null && reader[BUSINESSTYPETITLE] != DBNull.Value)
-                {
+                if (reader[BUSINESSTYPETITLE] != null && reader[BUSINESSTYPETITLE] != DBNull.Value) {
                     _BusinessType.BusinessTypeTitle = Common.Conversion.ToString(reader[BUSINESSTYPETITLE]);
                 }
 
-                if (reader[BUSINESSTYPEDESCRIPTION] != null && reader[BUSINESSTYPEDESCRIPTION] != DBNull.Value)
-                {
+                if (reader[BUSINESSTYPEDESCRIPTION] != null && reader[BUSINESSTYPEDESCRIPTION] != DBNull.Value) {
                     _BusinessType.BusinessTypeDescription = Common.Conversion.ToString(reader[BUSINESSTYPEDESCRIPTION]);
                 }
 
-                if (reader[ISACTIVE] != null && reader[ISACTIVE] != DBNull.Value)
-                {
+                if (reader[ISACTIVE] != null && reader[ISACTIVE] != DBNull.Value) {
                     _BusinessType.IsActive = Common.Conversion.ToBool(reader[ISACTIVE]);
                 }
 
                 return _BusinessType;
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 throw exception;
             }
         }
         #endregion Private Functions
         #region Public Functions
-        public BusinessType GetBusinessTypeById(short Id)
-        {
-            try
-            {
+        public BusinessType GetBusinessTypeById(short Id) {
+            try {
                 return GetBusinessType(Id);
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 throw exception;
             }
         }
-        public IEnumerable<BusinessType> GetBusinessTypes()
-        {
-            try
-            {
+        public IEnumerable<BusinessType> GetBusinessTypes() {
+            try {
                 return GetActiveBusinessTypes();
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 throw exception;
             }
         }
