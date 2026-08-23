@@ -1,4 +1,4 @@
-﻿using Clean.Architecture.Application.Interfaces.Application.User;
+using Clean.Architecture.Application.Interfaces.Application.User;
 using Clean.Architecture.Domain.User;
 
 using Microsoft.AspNetCore.Http;
@@ -15,16 +15,13 @@ namespace Clean.Architecture.API.Middleware {
     public class TokenProviderMiddleware {
         private readonly RequestDelegate _next;
         private readonly TokenProviderOptions _options;
-        private readonly IUserAccountService _userAccountService;
 
-
-        public TokenProviderMiddleware(RequestDelegate next, IOptions<TokenProviderOptions> options, IUserAccountService userAccountService) {
+        public TokenProviderMiddleware(RequestDelegate next, IOptions<TokenProviderOptions> options) {
             _next = next;
             _options = options.Value;
-            _userAccountService = userAccountService;
         }
 
-        public Task Invoke(HttpContext context) {
+        public Task Invoke(HttpContext context, IUserAccountService userAccountService) {
             // If the request path doesn't match, skip
             if (!context.Request.Path.Equals(_options.Path, StringComparison.Ordinal)) {
                 return _next(context);
@@ -37,19 +34,20 @@ namespace Clean.Architecture.API.Middleware {
                 return context.Response.WriteAsync("Bad request.");
             }
 
-            return GenerateToken(context);
+            return GenerateToken(context, userAccountService);
         }
         public static long ToUnixEpochDate(DateTime date) {
             return new DateTimeOffset(date).ToUniversalTime().ToUnixTimeSeconds();
         }
 
-        private async Task GenerateToken(HttpContext context) {
+        private async Task GenerateToken(HttpContext context, IUserAccountService userAccountService) {
             var username = context.Request.Form["username"];
             var password = context.Request.Form["password"];
 
             UserAccount _userAccount = null;
-            var identity = await GetIdentity(username, password, ref _userAccount);
-            if (identity == null || _userAccount == null) {
+            var identity = await GetIdentity(username, password, userAccountService, _userAccount);
+            _userAccount = identity.userAccount;
+            if (identity.claimsIdentity == null || _userAccount == null) {
                 context.Response.StatusCode = 400;
                 await context.Response.WriteAsync("Invalid username or password.");
                 return;
@@ -58,7 +56,6 @@ namespace Clean.Architecture.API.Middleware {
             var now = DateTime.UtcNow;
 
             // Specifically add the jti (random nonce), iat (issued timestamp), and sub (subject/user) claims.
-            // You can add other claims here, if you want:
             var claims = new Claim[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, username),
@@ -80,35 +77,28 @@ namespace Clean.Architecture.API.Middleware {
                 access_token = encodedJwt,
                 expires_in = (int)_options.Expiration.TotalSeconds,
                 UserId = _userAccount.ID,
-                UserName = _userAccount.UserName == null ? "" : _userAccount.UserName,
-                //DisplayName = _userAccount.DisplayName == null ? "" : _userAccount.DisplayName,
-
+                UserName = _userAccount.UserName ?? "",
             };
 
             // Serialize and return the response
             context.Response.ContentType = "application/json";
             await context.Response.WriteAsync(JsonConvert.SerializeObject(response, new JsonSerializerSettings { Formatting = Formatting.Indented }));
         }
-        private Task<ClaimsIdentity> GetIdentity(string username, string password, ref UserAccount UserAccountObject) {
-            // DON'T do this in production, obviously!
+        private Task<(ClaimsIdentity claimsIdentity, UserAccount userAccount)> GetIdentity(string username, string password, IUserAccountService userAccountService, UserAccount UserAccountObject) {
             try {
-                UserAccount userAccount = _userAccountService.Login(username, password);
+                UserAccount userAccount = userAccountService.Login(username, password);
                 if (userAccount != null) {
-                    UserAccountObject = userAccount;
-                    return Task.FromResult(
+                    return Task.FromResult((
                         new ClaimsIdentity(
-                            new System.Security.Principal.GenericIdentity(username, "Token"), new Claim[] { }));
+                            new System.Security.Principal.GenericIdentity(username, "Token"), new Claim[] { }),
+                        userAccount));
                 }
 
-                // Credentials are invalid, or account doesn't exist
-                return Task.FromResult<ClaimsIdentity>(null);
+                return Task.FromResult< (ClaimsIdentity, UserAccount) >((null, null));
             }
             catch (Exception exception) {
-
                 throw exception;
             }
-
         }
-
     }
 }

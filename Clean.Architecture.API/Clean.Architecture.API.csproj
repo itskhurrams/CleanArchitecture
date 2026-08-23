@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -14,6 +14,8 @@
     <ProjectReference Include="..\Clean.Architecture.Application\Clean.Architecture.Application.csproj" />
     <ProjectReference Include="..\Clean.Architecture.Common\Clean.Architecture.Common.csproj" />
     <ProjectReference Include="..\Clean.Architecture.Domain\Clean.Architecture.Domain.csproj" />
+    <ProjectReference Include="..\Clean.Architecture.Infastructure\Clean.Architecture.Infastructure.csproj" />
+    <ProjectReference Include="..\Clean.Architecture.Persistance\Clean.Architecture.Persistance.csproj" />
   </ItemGroup>
 
 </Project>

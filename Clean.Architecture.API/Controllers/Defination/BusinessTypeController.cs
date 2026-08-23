@@ -1,4 +1,4 @@
-﻿using Clean.Architecture.Application.Interfaces.Application.Defination;
+using Clean.Architecture.Application.Interfaces.Application.Defination;
 using Clean.Architecture.Application.Interfaces.Infastructure.Logging;
 
 using Microsoft.AspNetCore.Mvc;
@@ -16,12 +16,12 @@ namespace Clean.Architecture.API.Controllers.Defination {
             _loggerManager = logger;
         }
         [HttpGet]
-        public IActionResult GetMeritalStatuses() {
+        public IActionResult GetBusinessTypes() {
             try {
                 return Ok(_businessTypeService.GetBusinessTypes());
             }
             catch (Exception Ex) {
-                _loggerManager.LogError(Ex.InnerException.ToString());
+                _loggerManager.LogError(Ex.ToString());
                 return StatusCode(500, "Internal server error");
             }
         }

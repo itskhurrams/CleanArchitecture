@@ -1,4 +1,4 @@
-﻿using Clean.Architecture.Application.Interfaces.Application.Defination;
+using Clean.Architecture.Application.Interfaces.Application.Defination;
 using Clean.Architecture.Application.Interfaces.Infastructure.Logging;
 
 using Microsoft.AspNetCore.Mvc;
@@ -21,10 +21,9 @@ namespace Clean.Architecture.API.Controllers.Defination {
                 return Ok(_sufixService.GetSufixes());
             }
             catch (Exception Ex) {
-                _loggerManager.LogError(Ex.InnerException.ToString());
+                _loggerManager.LogError(Ex.ToString());
                 return StatusCode(500, "Internal server error");
             }
-
         }
     }
 }
