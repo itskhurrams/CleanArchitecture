@@ -1,4 +1,4 @@
-﻿using Clean.Architecture.Domain.Interfaces.User;
+using Clean.Architecture.Domain.Interfaces.User;
 using Clean.Architecture.Domain.User;
 
 using Microsoft.Practices.EnterpriseLibrary.Data;
@@ -9,7 +9,7 @@ using System.Data;
 using System.Data.Common;
 
 namespace Clean.Architecture.Persistance.User {
-    class UserPackageData : IUserPackageData {
+    public class UserPackageData : IUserPackageData {
         private readonly Database _Database;
         public UserPackageData(Database Database) {
             _Database = Database;
@@ -108,126 +108,85 @@ namespace Clean.Architecture.Persistance.User {
             }
         }
         private IEnumerable<UserPackage> GetByUserId(long UserId) {
-            try {
-                List<UserPackage> UserPackageList = null;
-                using (DbCommand dbcmdUserPackage = _Database.GetStoredProcCommand(PROC_USERPACKAGE_GETBYUSERID)) {
-                    _Database.AddInParameter(dbcmdUserPackage, USERID, DbType.Int64, UserId);
-
-                    using (IDataReader reader = _Database.ExecuteReader(dbcmdUserPackage)) {
-                        if (UserPackageList == null) {
-                            UserPackageList = new List<UserPackage>();
-                        }
-                        UserPackageList.Add(Mapper(reader));
+            List<UserPackage> userPackageList = new List<UserPackage>();
+            using (DbCommand dbcmdUserPackage = _Database.GetStoredProcCommand(PROC_USERPACKAGE_GETBYUSERID)) {
+                _Database.AddInParameter(dbcmdUserPackage, USERID, DbType.Int64, UserId);
+                using (IDataReader reader = _Database.ExecuteReader(dbcmdUserPackage)) {
+                    while (reader.Read()) {
+                        userPackageList.Add(Mapper(reader));
                     }
                 }
-                return UserPackageList;
             }
-            catch (Exception ex) {
-                throw ex;
-            }
+            return userPackageList;
         }
         private UserPackage GetById(long Id) {
-            try {
-                UserPackage UserPackage = null;
-                using (DbCommand dbcmdUserPackage = _Database.GetStoredProcCommand(PROC_USERPACKAGE_GETBYID)) {
-                    _Database.AddInParameter(dbcmdUserPackage, ID, DbType.Int32, Id);
-                    using (IDataReader reader = _Database.ExecuteReader(dbcmdUserPackage)) {
-                        UserPackage = Mapper(reader);
+            UserPackage userPackage = null;
+            using (DbCommand dbcmdUserPackage = _Database.GetStoredProcCommand(PROC_USERPACKAGE_GETBYID)) {
+                _Database.AddInParameter(dbcmdUserPackage, ID, DbType.Int32, Id);
+                using (IDataReader reader = _Database.ExecuteReader(dbcmdUserPackage)) {
+                    if (reader.Read()) {
+                        userPackage = Mapper(reader);
                     }
                 }
-                return UserPackage;
             }
-            catch (Exception ex) {
-                throw ex;
-            }
+            return userPackage;
         }
         private UserPackage Mapper(IDataReader reader) {
-            try {
-                UserPackage _UserPackage = new UserPackage();
-                if (reader[ID] != null && reader[ID] != DBNull.Value) {
-                    _UserPackage.ID = Common.Conversion.ToLong(reader[ID]);
-                }
-
-                if (reader[USERID] != null && reader[USERID] != DBNull.Value) {
-                    _UserPackage.UserId = Common.Conversion.ToLong(reader[USERID]);
-                }
-
-                if (reader[PACKAGEID] != null && reader[PACKAGEID] != DBNull.Value) {
-                    _UserPackage.PackageId = Common.Conversion.ToInt(reader[PACKAGEID]);
-                }
-
-                if (reader[ISACTIVE] != null && reader[ISACTIVE] != DBNull.Value) {
-                    _UserPackage.IsActive = Common.Conversion.ToBool(reader[ISACTIVE]);
-                }
-
-                if (reader[CREATEDBY] != null && reader[CREATEDBY] != DBNull.Value) {
-                    _UserPackage.CreatedBy = Common.Conversion.ToString(reader[CREATEDBY]);
-                }
-
-                if (reader[CREATEDDATE] != null && reader[CREATEDDATE] != DBNull.Value) {
-                    _UserPackage.CreatedDate = Common.Conversion.ToDateTime(reader[CREATEDDATE]);
-                }
-
-                if (reader[UPDATEDBY] != null && reader[UPDATEDBY] != DBNull.Value) {
-                    _UserPackage.UpdatedBy = Common.Conversion.ToString(reader[UPDATEDBY]);
-                }
-
-                if (reader[UPDATEDDATE] != null && reader[UPDATEDDATE] != DBNull.Value) {
-                    _UserPackage.UpdatedDate = Common.Conversion.ToDateTime(reader[UPDATEDDATE]);
-                }
-
-                return _UserPackage;
+            UserPackage _UserPackage = new UserPackage();
+            if (reader[ID] != null && reader[ID] != DBNull.Value) {
+                _UserPackage.ID = Common.Conversion.ToLong(reader[ID]);
             }
-            catch (Exception exception) {
-                throw exception;
+
+            if (reader[USERID] != null && reader[USERID] != DBNull.Value) {
+                _UserPackage.UserId = Common.Conversion.ToLong(reader[USERID]);
             }
+
+            if (reader[PACKAGEID] != null && reader[PACKAGEID] != DBNull.Value) {
+                _UserPackage.PackageId = Common.Conversion.ToInt(reader[PACKAGEID]);
+            }
+
+            if (reader[ISACTIVE] != null && reader[ISACTIVE] != DBNull.Value) {
+                _UserPackage.IsActive = Common.Conversion.ToBool(reader[ISACTIVE]);
+            }
+
+            if (reader[CREATEDBY] != null && reader[CREATEDBY] != DBNull.Value) {
+                _UserPackage.CreatedBy = Common.Conversion.ToString(reader[CREATEDBY]);
+            }
+
+            if (reader[CREATEDDATE] != null && reader[CREATEDDATE] != DBNull.Value) {
+                _UserPackage.CreatedDate = Common.Conversion.ToDateTime(reader[CREATEDDATE]);
+            }
+
+            if (reader[UPDATEDBY] != null && reader[UPDATEDBY] != DBNull.Value) {
+                _UserPackage.UpdatedBy = Common.Conversion.ToString(reader[UPDATEDBY]);
+            }
+
+            if (reader[UPDATEDDATE] != null && reader[UPDATEDDATE] != DBNull.Value) {
+                _UserPackage.UpdatedDate = Common.Conversion.ToDateTime(reader[UPDATEDDATE]);
+            }
+
+            return _UserPackage;
         }
 
         #endregion Private Functions
         #region Public Functions
         public void SaveUserPackages(long UserId, List<UserPackage> UserPackageList, DbTransaction dbTransaction = null) {
-            try {
-                DeleteByUserId(UserId, dbTransaction);
-                if (UserPackageList != null && UserPackageList.Count > 0) {
-                    foreach (UserPackage userPackage in UserPackageList) {
-                        userPackage.UserId = UserId;
-                        userPackage.IsActive = true;
-                        if (userPackage.ID == 0) {
-                            Insert(userPackage, dbTransaction);
-                        }
-                        else {
-                            Update(userPackage, dbTransaction);
-                        }
-                    }
+            DeleteByUserId(UserId, dbTransaction);
+            if (UserPackageList != null && UserPackageList.Count > 0) {
+                foreach (UserPackage userPackage in UserPackageList) {
+                    userPackage.UserId = UserId;
+                    userPackage.IsActive = true;
+                    Insert(userPackage, dbTransaction);
                 }
-            }
-            catch (Exception exception) {
-
-                throw exception;
             }
         }
         public IEnumerable<UserPackage> GetPackagesByUserId(long UserId) {
-            try {
-                return GetByUserId(UserId);
-
-            }
-            catch (Exception exception) {
-
-                throw exception;
-            }
+            return GetByUserId(UserId);
         }
 
         public long DeletePackagesByUserId(long UserId) {
-            try {
-                return DeleteByUserId(UserId);
-
-            }
-            catch (Exception exception) {
-
-                throw exception;
-            }
+            return DeleteByUserId(UserId);
         }
-
 
         #endregion
     }

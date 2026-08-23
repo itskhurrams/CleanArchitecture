@@ -1,5 +1,5 @@
-﻿using Clean.Architecture.Application.Domain.Defination;
 using Clean.Architecture.Domain.Defination;
+using Clean.Architecture.Domain.Interfaces.Defination;
 
 using Microsoft.Practices.EnterpriseLibrary.Data;
 
@@ -25,75 +25,51 @@ namespace Clean.Architecture.Persistance.Defination {
         #endregion Parameters
         #region Private Functions
         private IEnumerable<MeritalStatus> GetActiveMeritalStatuss() {
-            try {
-                List<MeritalStatus> MeritalStatusList = null;
-                using (DbCommand dbcmdMeritalStatus = _Database.GetStoredProcCommand(PROC_MERITALSTATUS_GETALL)) {
-                    using (IDataReader reader = _Database.ExecuteReader(dbcmdMeritalStatus)) {
-                        if (MeritalStatusList == null) {
-                            MeritalStatusList = new List<MeritalStatus>();
-                        }
-                        MeritalStatusList.Add(Mapper(reader));
+            List<MeritalStatus> meritalStatusList = new List<MeritalStatus>();
+            using (DbCommand dbcmdMeritalStatus = _Database.GetStoredProcCommand(PROC_MERITALSTATUS_GETALL)) {
+                using (IDataReader reader = _Database.ExecuteReader(dbcmdMeritalStatus)) {
+                    while (reader.Read()) {
+                        meritalStatusList.Add(Mapper(reader));
                     }
                 }
-                return MeritalStatusList;
             }
-            catch (Exception ex) {
-                throw ex;
-            }
+            return meritalStatusList;
         }
         private MeritalStatus GetMeritalStatus(short Id) {
-            try {
-                MeritalStatus MeritalStatus = null;
-                using (DbCommand dbcmdMeritalStatus = _Database.GetStoredProcCommand(PROC_MERITALSTATUS_GETBYID)) {
-                    _Database.AddInParameter(dbcmdMeritalStatus, ID, DbType.Int16, Id);
-                    using (IDataReader reader = _Database.ExecuteReader(dbcmdMeritalStatus)) {
-                        MeritalStatus = Mapper(reader);
+            MeritalStatus meritalStatus = null;
+            using (DbCommand dbcmdMeritalStatus = _Database.GetStoredProcCommand(PROC_MERITALSTATUS_GETBYID)) {
+                _Database.AddInParameter(dbcmdMeritalStatus, ID, DbType.Int16, Id);
+                using (IDataReader reader = _Database.ExecuteReader(dbcmdMeritalStatus)) {
+                    if (reader.Read()) {
+                        meritalStatus = Mapper(reader);
                     }
                 }
-                return MeritalStatus;
             }
-            catch (Exception ex) {
-                throw ex;
-            }
+            return meritalStatus;
         }
         private MeritalStatus Mapper(IDataReader reader) {
-            try {
-                MeritalStatus _MeritalStatus = new MeritalStatus();
-                if (reader[ID] != null && reader[ID] != DBNull.Value) {
-                    _MeritalStatus.ID = Common.Conversion.ToShort(reader[ID]);
-                }
-
-                if (reader[MERITALSTATUSTITLE] != null && reader[MERITALSTATUSTITLE] != DBNull.Value) {
-                    _MeritalStatus.MeritalStatusTitle = Common.Conversion.ToString(reader[MERITALSTATUSTITLE]);
-                }
-
-                if (reader[ISACTIVE] != null && reader[ISACTIVE] != DBNull.Value) {
-                    _MeritalStatus.IsActive = Common.Conversion.ToBool(reader[ISACTIVE]);
-                }
-
-                return _MeritalStatus;
+            MeritalStatus _MeritalStatus = new MeritalStatus();
+            if (reader[ID] != null && reader[ID] != DBNull.Value) {
+                _MeritalStatus.ID = Common.Conversion.ToShort(reader[ID]);
             }
-            catch (Exception exception) {
-                throw exception;
+
+            if (reader[MERITALSTATUSTITLE] != null && reader[MERITALSTATUSTITLE] != DBNull.Value) {
+                _MeritalStatus.MeritalStatusTitle = Common.Conversion.ToString(reader[MERITALSTATUSTITLE]);
             }
+
+            if (reader[ISACTIVE] != null && reader[ISACTIVE] != DBNull.Value) {
+                _MeritalStatus.IsActive = Common.Conversion.ToBool(reader[ISACTIVE]);
+            }
+
+            return _MeritalStatus;
         }
         #endregion Private Functions
         #region Public Functions
         public MeritalStatus GetMeritalStatusById(short Id) {
-            try {
-                return GetMeritalStatus(Id);
-            }
-            catch (Exception exception) {
-                throw exception;
-            }
+            return GetMeritalStatus(Id);
         }
         public IEnumerable<MeritalStatus> GetMeritalStatuses() {
-            try {
-                return GetActiveMeritalStatuss();
-            }
-            catch (Exception exception) {
-                throw exception;
-            }
+            return GetActiveMeritalStatuss();
         }
         #endregion
     }

@@ -1,4 +1,4 @@
-﻿using Clean.Architecture.Domain.Defination;
+using Clean.Architecture.Domain.Defination;
 using Clean.Architecture.Domain.Interfaces.Defination;
 
 using Microsoft.Practices.EnterpriseLibrary.Data;
@@ -30,87 +30,63 @@ namespace Clean.Architecture.Persistance.Defination {
         #endregion Parameters
         #region Private Functions
         private IEnumerable<Package> GetActivePackages() {
-            try {
-                List<Package> PackageList = null;
-                using (DbCommand dbcmdPackage = _Database.GetStoredProcCommand(PROC_PACKAGE_GETALL)) {
-                    using (IDataReader reader = _Database.ExecuteReader(dbcmdPackage)) {
-                        if (PackageList == null) {
-                            PackageList = new List<Package>();
-                        }
-                        PackageList.Add(Mapper(reader));
+            List<Package> packageList = new List<Package>();
+            using (DbCommand dbcmdPackage = _Database.GetStoredProcCommand(PROC_PACKAGE_GETALL)) {
+                using (IDataReader reader = _Database.ExecuteReader(dbcmdPackage)) {
+                    while (reader.Read()) {
+                        packageList.Add(Mapper(reader));
                     }
                 }
-                return PackageList;
             }
-            catch (Exception ex) {
-                throw ex;
-            }
+            return packageList;
         }
         private Package GetPackage(int Id) {
-            try {
-                Package Package = null;
-                using (DbCommand dbcmdPackage = _Database.GetStoredProcCommand(PROC_PACKAGE_GETBYID)) {
-                    _Database.AddInParameter(dbcmdPackage, ID, DbType.Int16, Id);
-                    using (IDataReader reader = _Database.ExecuteReader(dbcmdPackage)) {
-                        Package = Mapper(reader);
+            Package package = null;
+            using (DbCommand dbcmdPackage = _Database.GetStoredProcCommand(PROC_PACKAGE_GETBYID)) {
+                _Database.AddInParameter(dbcmdPackage, ID, DbType.Int32, Id);
+                using (IDataReader reader = _Database.ExecuteReader(dbcmdPackage)) {
+                    if (reader.Read()) {
+                        package = Mapper(reader);
                     }
                 }
-                return Package;
             }
-            catch (Exception ex) {
-                throw ex;
-            }
+            return package;
         }
         private Package Mapper(IDataReader reader) {
-            try {
-                Package _Package = new Package();
-                if (reader[ID] != null && reader[ID] != DBNull.Value) {
-                    _Package.ID = Common.Conversion.ToInt(reader[ID]);
-                }
-                if (reader[TITLE] != null && reader[TITLE] != DBNull.Value) {
-                    _Package.Title = Common.Conversion.ToString(reader[TITLE]);
-                }
-                if (reader[DETAIL] != null && reader[DETAIL] != DBNull.Value) {
-                    _Package.Detail = Common.Conversion.ToString(reader[DETAIL]);
-                }
-                if (reader[ISACTIVE] != null && reader[ISACTIVE] != DBNull.Value) {
-                    _Package.IsActive = Common.Conversion.ToBool(reader[ISACTIVE]);
-                }
-                if (reader[CREATEDBY] != null && reader[CREATEDBY] != DBNull.Value) {
-                    _Package.CreatedBy = Common.Conversion.ToString(reader[CREATEDBY]);
-                }
-                if (reader[CREATEDDATE] != null && reader[CREATEDDATE] != DBNull.Value) {
-                    _Package.CreatedDate = Common.Conversion.ToDateTime(reader[CREATEDDATE]);
-                }
-                if (reader[UPDATEDBY] != null && reader[UPDATEDBY] != DBNull.Value) {
-                    _Package.UpdatedBy = Common.Conversion.ToString(reader[UPDATEDBY]);
-                }
-                if (reader[UPDATEDDATE] != null && reader[UPDATEDDATE] != DBNull.Value) {
-                    _Package.UpdatedDate = Common.Conversion.ToDateTime(reader[UPDATEDDATE]);
-                }
-                return _Package;
+            Package _Package = new Package();
+            if (reader[ID] != null && reader[ID] != DBNull.Value) {
+                _Package.ID = Common.Conversion.ToInt(reader[ID]);
             }
-            catch (Exception exception) {
-                throw exception;
+            if (reader[TITLE] != null && reader[TITLE] != DBNull.Value) {
+                _Package.Title = Common.Conversion.ToString(reader[TITLE]);
             }
+            if (reader[DETAIL] != null && reader[DETAIL] != DBNull.Value) {
+                _Package.Detail = Common.Conversion.ToString(reader[DETAIL]);
+            }
+            if (reader[ISACTIVE] != null && reader[ISACTIVE] != DBNull.Value) {
+                _Package.IsActive = Common.Conversion.ToBool(reader[ISACTIVE]);
+            }
+            if (reader[CREATEDBY] != null && reader[CREATEDBY] != DBNull.Value) {
+                _Package.CreatedBy = Common.Conversion.ToString(reader[CREATEDBY]);
+            }
+            if (reader[CREATEDDATE] != null && reader[CREATEDDATE] != DBNull.Value) {
+                _Package.CreatedDate = Common.Conversion.ToDateTime(reader[CREATEDDATE]);
+            }
+            if (reader[UPDATEDBY] != null && reader[UPDATEDBY] != DBNull.Value) {
+                _Package.UpdatedBy = Common.Conversion.ToString(reader[UPDATEDBY]);
+            }
+            if (reader[UPDATEDDATE] != null && reader[UPDATEDDATE] != DBNull.Value) {
+                _Package.UpdatedDate = Common.Conversion.ToDateTime(reader[UPDATEDDATE]);
+            }
+            return _Package;
         }
         #endregion Private Functions
         #region Public Functions
         public Package GetPackageById(int Id) {
-            try {
-                return GetPackage(Id);
-            }
-            catch (Exception exception) {
-                throw exception;
-            }
+            return GetPackage(Id);
         }
         public IEnumerable<Package> GetPackages() {
-            try {
-                return GetActivePackages();
-            }
-            catch (Exception exception) {
-                throw exception;
-            }
+            return GetActivePackages();
         }
         #endregion
     }

@@ -1,4 +1,4 @@
-﻿using Clean.Architecture.Domain.Defination;
+using Clean.Architecture.Domain.Defination;
 using Clean.Architecture.Domain.Interfaces.Defination;
 
 using Microsoft.Practices.EnterpriseLibrary.Data;
@@ -26,80 +26,56 @@ namespace Clean.Architecture.Persistance.Defination {
         #endregion Parameters
         #region Private Functions
         private IEnumerable<AddressType> GetActiveAddressTypes() {
-            try {
-                List<AddressType> AddressTypeList = null;
-                using (DbCommand dbcmdAddressType = _Database.GetStoredProcCommand(PROC_ADDRESSTYPE_GETALL)) {
-                    using (IDataReader reader = _Database.ExecuteReader(dbcmdAddressType)) {
-                        if (AddressTypeList == null) {
-                            AddressTypeList = new List<AddressType>();
-                        }
-                        AddressTypeList.Add(Mapper(reader));
+            List<AddressType> addressTypeList = new List<AddressType>();
+            using (DbCommand dbcmdAddressType = _Database.GetStoredProcCommand(PROC_ADDRESSTYPE_GETALL)) {
+                using (IDataReader reader = _Database.ExecuteReader(dbcmdAddressType)) {
+                    while (reader.Read()) {
+                        addressTypeList.Add(Mapper(reader));
                     }
                 }
-                return AddressTypeList;
             }
-            catch (Exception ex) {
-                throw ex;
-            }
+            return addressTypeList;
         }
         private AddressType GetAddressType(short Id) {
-            try {
-                AddressType AddressType = null;
-                using (DbCommand dbcmdAddressType = _Database.GetStoredProcCommand(PROC_ADDRESSTYPE_GETBYID)) {
-                    _Database.AddInParameter(dbcmdAddressType, ID, DbType.Int16, Id);
-                    using (IDataReader reader = _Database.ExecuteReader(dbcmdAddressType)) {
-                        AddressType = Mapper(reader);
+            AddressType addressType = null;
+            using (DbCommand dbcmdAddressType = _Database.GetStoredProcCommand(PROC_ADDRESSTYPE_GETBYID)) {
+                _Database.AddInParameter(dbcmdAddressType, ID, DbType.Int16, Id);
+                using (IDataReader reader = _Database.ExecuteReader(dbcmdAddressType)) {
+                    if (reader.Read()) {
+                        addressType = Mapper(reader);
                     }
                 }
-                return AddressType;
             }
-            catch (Exception ex) {
-                throw ex;
-            }
+            return addressType;
         }
         private AddressType Mapper(IDataReader reader) {
-            try {
-                AddressType _AddressType = new AddressType();
-                if (reader[ID] != null && reader[ID] != DBNull.Value) {
-                    _AddressType.ID = Common.Conversion.ToShort(reader[ID]);
-                }
-
-                if (reader[ADDRESSTYPETITLE] != null && reader[ADDRESSTYPETITLE] != DBNull.Value) {
-                    _AddressType.AddressTypeTitle = Common.Conversion.ToString(reader[ADDRESSTYPETITLE]);
-                }
-
-                if (reader[ADDRESSTYPEDESCRIPTION] != null && reader[ADDRESSTYPEDESCRIPTION] != DBNull.Value) {
-                    _AddressType.AddressTypeDescription = Common.Conversion.ToString(reader[ADDRESSTYPEDESCRIPTION]);
-                }
-
-                if (reader[ISACTIVE] != null && reader[ISACTIVE] != DBNull.Value) {
-                    _AddressType.IsActive = Common.Conversion.ToBool(reader[ISACTIVE]);
-                }
-
-                return _AddressType;
+            AddressType _AddressType = new AddressType();
+            if (reader[ID] != null && reader[ID] != DBNull.Value) {
+                _AddressType.ID = Common.Conversion.ToShort(reader[ID]);
             }
-            catch (Exception exception) {
-                throw exception;
+
+            if (reader[ADDRESSTYPETITLE] != null && reader[ADDRESSTYPETITLE] != DBNull.Value) {
+                _AddressType.AddressTypeTitle = Common.Conversion.ToString(reader[ADDRESSTYPETITLE]);
             }
+
+            if (reader[ADDRESSTYPEDESCRIPTION] != null && reader[ADDRESSTYPEDESCRIPTION] != DBNull.Value) {
+                _AddressType.AddressTypeDescription = Common.Conversion.ToString(reader[ADDRESSTYPEDESCRIPTION]);
+            }
+
+            if (reader[ISACTIVE] != null && reader[ISACTIVE] != DBNull.Value) {
+                _AddressType.IsActive = Common.Conversion.ToBool(reader[ISACTIVE]);
+            }
+
+            return _AddressType;
         }
         #endregion Private Functions
         #region Public Functions
         public AddressType GetAddressTypeById(short Id) {
-            try {
-                return GetAddressType(Id);
-            }
-            catch (Exception exception) {
-                throw exception;
-            }
+            return GetAddressType(Id);
         }
 
         public IEnumerable<AddressType> GetAddressTypes() {
-            try {
-                return GetActiveAddressTypes();
-            }
-            catch (Exception exception) {
-                throw exception;
-            }
+            return GetActiveAddressTypes();
         }
         #endregion
 

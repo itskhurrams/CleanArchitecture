@@ -1,4 +1,4 @@
-﻿using Clean.Architecture.Domain.Defination;
+using Clean.Architecture.Domain.Defination;
 using Clean.Architecture.Domain.Interfaces.Defination;
 
 using Microsoft.Practices.EnterpriseLibrary.Data;
@@ -25,75 +25,61 @@ namespace Clean.Architecture.Persistance.Defination {
         #endregion Parameters
         #region Private Functions
         private IEnumerable<Sufix> GetActiveSufixs() {
-            try {
-                List<Sufix> SufixList = null;
-                using (DbCommand dbcmdSufix = _Database.GetStoredProcCommand(PROC_SUFIX_GETALL)) {
-                    using (IDataReader reader = _Database.ExecuteReader(dbcmdSufix)) {
-                        if (SufixList == null) {
-                            SufixList = new List<Sufix>();
-                        }
-                        SufixList.Add(Mapper(reader));
+            List<Sufix> sufixList = new List<Sufix>();
+            using (DbCommand dbcmdSufix = _Database.GetStoredProcCommand(PROC_SUFIX_GETALL)) {
+                using (IDataReader reader = _Database.ExecuteReader(dbcmdSufix)) {
+                    while (reader.Read()) {
+                        sufixList.Add(Mapper(reader));
                     }
                 }
-                return SufixList;
             }
-            catch (Exception ex) {
-                throw ex;
-            }
+            return sufixList;
         }
         private Sufix GetSufix(short Id) {
-            try {
-                Sufix Sufix = null;
-                using (DbCommand dbcmdSufix = _Database.GetStoredProcCommand(PROC_SUFIX_GETBYID)) {
-                    _Database.AddInParameter(dbcmdSufix, ID, DbType.Int16, Id);
-                    using (IDataReader reader = _Database.ExecuteReader(dbcmdSufix)) {
-                        Sufix = Mapper(reader);
+            Sufix sufix = null;
+            using (DbCommand dbcmdSufix = _Database.GetStoredProcCommand(PROC_SUFIX_GETBYID)) {
+                _Database.AddInParameter(dbcmdSufix, ID, DbType.Int16, Id);
+                using (IDataReader reader = _Database.ExecuteReader(dbcmdSufix)) {
+                    if (reader.Read()) {
+                        sufix = Mapper(reader);
                     }
                 }
-                return Sufix;
             }
-            catch (Exception ex) {
-                throw ex;
-            }
+            return sufix;
         }
         private Sufix Mapper(IDataReader reader) {
+            Sufix _Sufix = new Sufix();
+            if (reader[ID] != null && reader[ID] != DBNull.Value) {
+                _Sufix.ID = Common.Conversion.ToShort(reader[ID]);
+            }
+
+            if (reader[SUFIXTITLE] != null && reader[SUFIXTITLE] != DBNull.Value) {
+                _Sufix.SufixTitle = Common.Conversion.ToString(reader[SUFIXTITLE]);
+            }
+
             try {
-                Sufix _Sufix = new Sufix();
-                if (reader[ID] != null && reader[ID] != DBNull.Value) {
-                    _Sufix.ID = Common.Conversion.ToShort(reader[ID]);
-                }
-
-                if (reader[SUFIXTITLE] != null && reader[SUFIXTITLE] != DBNull.Value) {
-                    _Sufix.SufixTitle = Common.Conversion.ToString(reader[SUFIXTITLE]);
-                }
-
                 if (reader[ISACITVE] != null && reader[ISACITVE] != DBNull.Value) {
                     _Sufix.IsAcitve = Common.Conversion.ToBool(reader[ISACITVE]);
                 }
+            }
+            catch {
+                try {
+                    if (reader["IsActive"] != null && reader["IsActive"] != DBNull.Value) {
+                        _Sufix.IsAcitve = Common.Conversion.ToBool(reader["IsActive"]);
+                    }
+                }
+                catch { }
+            }
 
-                return _Sufix;
-            }
-            catch (Exception exception) {
-                throw exception;
-            }
+            return _Sufix;
         }
         #endregion Private Functions
         #region Public Functions
         public Sufix GetSufixById(short Id) {
-            try {
-                return GetSufix(Id);
-            }
-            catch (Exception exception) {
-                throw exception;
-            }
+            return GetSufix(Id);
         }
         public IEnumerable<Sufix> GetSufixes() {
-            try {
-                return GetActiveSufixs();
-            }
-            catch (Exception exception) {
-                throw exception;
-            }
+            return GetActiveSufixs();
         }
         #endregion
     }
