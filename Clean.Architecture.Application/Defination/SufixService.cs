@@ -1,4 +1,4 @@
-﻿using Clean.Architecture.Application.Interfaces.Application.Defination;
+using Clean.Architecture.Application.Interfaces.Application.Defination;
 using Clean.Architecture.Domain.Defination;
 using Clean.Architecture.Domain.Interfaces.Defination;
 
@@ -11,12 +11,7 @@ namespace Clean.Architecture.Application.Defination {
             _SufixData = SufixData;
         }
         public IEnumerable<Sufix> GetSufixes() {
-            try {
-                return _SufixData.GetSufixes();
-            }
-            catch (Exception exception) {
-                throw exception;
-            }
+            return _SufixData.GetSufixes();
         }
     }
 }

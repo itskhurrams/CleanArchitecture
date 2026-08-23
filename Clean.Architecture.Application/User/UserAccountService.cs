@@ -1,8 +1,8 @@
-﻿using Clean.Architecture.Application.Interfaces.Application.User;
+using Clean.Architecture.Application.Interfaces.Application.User;
 using Clean.Architecture.Domain.Interfaces.User;
 using Clean.Architecture.Domain.User;
 
-using System;
+using System.Collections.Generic;
 
 namespace Clean.Architecture.Application.User {
     public class UserAccountService : IUserAccountService {
@@ -12,33 +12,27 @@ namespace Clean.Architecture.Application.User {
             _userAccountData = userAccountData;
         }
         public bool CheckAvailability(string Username) {
-            try {
-                return _userAccountData.CheckAvailability(Username);
-            }
-            catch (Exception exception) {
+            return _userAccountData.CheckAvailability(Username);
+        }
 
-                throw exception;
-            }
+        public UserAccount GetUserById(long Id) {
+            return _userAccountData.GetUserById(Id);
+        }
+
+        public IEnumerable<UserAccount> GetUsers() {
+            return _userAccountData.GetUsers();
         }
 
         public UserAccount Login(string UserName, string Password) {
-            try {
-                return _userAccountData.Login(UserName, Password);
-            }
-            catch (Exception exception) {
-
-                throw exception;
-            }
+            return _userAccountData.Login(UserName, Password);
         }
 
         public long SaveUser(UserAccount userAccount) {
-            try {
-                return _userAccountData.SaveUser(userAccount);
-            }
-            catch (Exception exception) {
+            return _userAccountData.SaveUser(userAccount);
+        }
 
-                throw exception;
-            }
+        public long DeleteUser(long Id) {
+            return _userAccountData.DeleteUser(Id);
         }
     }
 }

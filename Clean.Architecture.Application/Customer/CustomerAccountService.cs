@@ -1,4 +1,4 @@
-﻿using Clean.Architecture.Application.Interfaces.Application.Customer;
+using Clean.Architecture.Application.Interfaces.Application.Customer;
 using Clean.Architecture.Domain.Customer;
 using Clean.Architecture.Domain.Interfaces.Customer;
 
@@ -12,53 +12,23 @@ namespace Clean.Architecture.Application.Customer {
             _customerAccountData = customerAccountData;
         }
         public bool CheckAvailability(string Username) {
-            try {
-                return _customerAccountData.CheckAvailability(Username);
-            }
-            catch (Exception exception) {
-
-                throw exception;
-            }
+            return _customerAccountData.CheckAvailability(Username);
         }
 
         public CustomerAccount GetCustomerById(long Id) {
-            try {
-                return _customerAccountData.GetCustomerById(Id);
-            }
-            catch (Exception exception) {
-
-                throw exception;
-            }
+            return _customerAccountData.GetCustomerById(Id);
         }
 
         public IEnumerable<CustomerAccount> GetCustomers() {
-            try {
-                return _customerAccountData.GetCustomers();
-            }
-            catch (Exception exception) {
-
-                throw exception;
-            }
+            return _customerAccountData.GetCustomers();
         }
 
         public CustomerAccount Login(string UserName, string Password) {
-            try {
-                return _customerAccountData.Login(UserName, Password);
-            }
-            catch (Exception exception) {
-
-                throw exception;
-            }
+            return _customerAccountData.Login(UserName, Password);
         }
 
         public long SaveCustomer(CustomerAccount customerAccount) {
-            try {
-                return _customerAccountData.SaveCustomer(customerAccount);
-            }
-            catch (Exception exception) {
-
-                throw exception;
-            }
+            return _customerAccountData.SaveCustomer(customerAccount);
         }
     }
 }

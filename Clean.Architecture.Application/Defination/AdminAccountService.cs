@@ -1,4 +1,4 @@
-﻿using Clean.Architecture.Application.Interfaces.Application.Defination;
+using Clean.Architecture.Application.Interfaces.Application.Defination;
 using Clean.Architecture.Domain.Defination;
 using Clean.Architecture.Domain.Interfaces.Defination;
 
@@ -10,12 +10,7 @@ namespace Clean.Architecture.Application.Defination {
             _adminAccountData = adminAccountData;
         }
         public AdminAccount Login(string UserName, string Password) {
-            try {
-                return _adminAccountData.Login(UserName, Password);
-            }
-            catch (Exception exception) {
-                throw exception;
-            }
+            return _adminAccountData.Login(UserName, Password);
         }
     }
 }

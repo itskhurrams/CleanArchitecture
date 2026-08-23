@@ -1,9 +1,9 @@
-﻿using Clean.Architecture.Application.Domain.Defination;
 using Clean.Architecture.Application.Interfaces.Application.Defination;
 using Clean.Architecture.Domain.Defination;
+using Clean.Architecture.Domain.Interfaces.Defination;
 
-using System;
 using System.Collections.Generic;
+
 namespace Clean.Architecture.Application.Defination {
     public class MeritalStatusService : IMeritalStatusService {
         private readonly IMeritalStatusData _meritalStatusData;
@@ -11,12 +11,7 @@ namespace Clean.Architecture.Application.Defination {
             _meritalStatusData = meritalStatusData;
         }
         public IEnumerable<MeritalStatus> GetMeritalStatuses() {
-            try {
-                return _meritalStatusData.GetMeritalStatuses();
-            }
-            catch (Exception exception) {
-                throw exception;
-            }
+            return _meritalStatusData.GetMeritalStatuses();
         }
     }
 }
