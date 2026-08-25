@@ -96,8 +96,8 @@ namespace Clean.Architecture.API.Middleware {
 
                 return Task.FromResult< (ClaimsIdentity, UserAccount) >((null, null));
             }
-            catch (Exception exception) {
-                throw exception;
+            catch (Exception) {
+                throw;
             }
         }
     }

@@ -15,11 +15,12 @@ using Clean.Architecture.Persistance.User;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Practices.EnterpriseLibrary.Data;
-using Microsoft.Practices.EnterpriseLibrary.Data.Sql;
+
+using System.Data;
 
 namespace Clean.Architecture.API {
     public class Startup {
@@ -42,12 +43,12 @@ namespace Clean.Architecture.API {
             #endregion
 
             #region Database
-            services.AddScoped<Database>(sp => {
+            services.AddScoped<IDbConnection>(sp => {
                 var config = sp.GetRequiredService<IConfiguration>();
-                var connStr = config["Data:ConnectionString"] 
-                    ?? config.GetConnectionString("DefaultConnection") 
+                var connStr = config["Data:ConnectionString"]
+                    ?? config.GetConnectionString("DefaultConnection")
                     ?? "Server=localhost;Database=CleanArchitectureDB;Trusted_Connection=True;MultipleActiveResultSets=true;";
-                return new SqlDatabase(connStr);
+                return new SqlConnection(connStr);
             });
             #endregion
 
