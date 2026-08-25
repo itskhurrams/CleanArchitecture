@@ -1,2 +1,2 @@
 # CleanArchitecture
-Clean Architecture of Dot Net Core With Enterprise Library.
+Clean Architecture of .NET 10 with Dapper and Microsoft.Data.SqlClient.
