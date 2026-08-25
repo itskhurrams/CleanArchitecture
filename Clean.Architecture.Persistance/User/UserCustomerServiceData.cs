@@ -1,7 +1,7 @@
 using Clean.Architecture.Domain.Interfaces.User;
 using Clean.Architecture.Domain.User;
 
-using Microsoft.Practices.EnterpriseLibrary.Data;
+using Dapper;
 
 using System;
 using System.Collections.Generic;
@@ -10,9 +10,9 @@ using System.Data.Common;
 
 namespace Clean.Architecture.Persistance.User {
     public class UserCustomerServiceData : IUserCustomerServiceData {
-        private readonly Database _Database;
-        public UserCustomerServiceData(Database Database) {
-            _Database = Database;
+        private readonly IDbConnection _connection;
+        public UserCustomerServiceData(IDbConnection connection) {
+            _connection = connection;
         }
         #region SQL Procedures
         private const string PROC_USERCUSTOMERSERVICE_INSERT = "[Core].[Proc_UserCustomerService_Insert]";
@@ -22,35 +22,18 @@ namespace Clean.Architecture.Persistance.User {
         private const string PROC_USERCUSTOMERSERVICE_GETBYUSERID = "[Core].[Proc_UserCustomerService_GetByUserId]";
         private const string PROC_USERCUSTOMERSERVICE_DELETEBYUSERID = "[Core].[Proc_UserCustomerService_DeleteByUserId]";
         #endregion SQL Procedures
-        #region Parameters
-        private const string ID = "ID";
-        private const string USERID = "UserId";
-        private const string CUSTOMERID = "CustomerId";
-        private const string CUSTOMERSERVICEID = "CustomerServiceId";
-        private const string ISACTIVE = "IsActive";
-        private const string CREATEDBY = "CreatedBy";
-        private const string CREATEDDATE = "CreatedDate";
-        private const string UPDATEDBY = "UpdatedBy";
-        private const string UPDATEDDATE = "UpdatedDate";
-        #endregion Parameters
         #region Private Functions
         private long Insert(UserCustomerService _UserCustomerService, DbTransaction dbTransaction = null) {
             try {
-                using (DbCommand dbCommand = _Database.GetStoredProcCommand(PROC_USERCUSTOMERSERVICE_INSERT)) {
-                    _Database.AddInParameter(dbCommand, ID, DbType.Int64, _UserCustomerService.ID);
-                    _Database.AddInParameter(dbCommand, USERID, DbType.Int64, _UserCustomerService.UserId);
-                    _Database.AddInParameter(dbCommand, CUSTOMERID, DbType.Int64, _UserCustomerService.CustomerId);
-                    _Database.AddInParameter(dbCommand, CUSTOMERSERVICEID, DbType.Int64, _UserCustomerService.CustomerServiceId);
-                    _Database.AddInParameter(dbCommand, ISACTIVE, DbType.Boolean, _UserCustomerService.IsActive);
-                    _Database.AddInParameter(dbCommand, CREATEDBY, DbType.String, _UserCustomerService.CreatedBy);
-
-                    if (dbTransaction == null) {
-                        return Common.Conversion.ToLong(_Database.ExecuteScalar(dbCommand));
-                    }
-                    else {
-                        return Common.Conversion.ToLong(_Database.ExecuteScalar(dbCommand, dbTransaction));
-                    }
-                }
+                var parameters = new {
+                    ID = _UserCustomerService.ID,
+                    UserId = _UserCustomerService.UserId,
+                    CustomerId = _UserCustomerService.CustomerId,
+                    CustomerServiceId = _UserCustomerService.CustomerServiceId,
+                    IsActive = _UserCustomerService.IsActive,
+                    CreatedBy = _UserCustomerService.CreatedBy,
+                };
+                return _connection.ExecuteScalar<long?>(PROC_USERCUSTOMERSERVICE_INSERT, parameters, dbTransaction, commandType: CommandType.StoredProcedure) ?? 0;
             }
             catch (Exception ex) {
                 throw new Exception("Add", ex);
@@ -58,21 +41,15 @@ namespace Clean.Architecture.Persistance.User {
         }
         private long Update(UserCustomerService _UserCustomerService, DbTransaction dbTransaction = null) {
             try {
-                using (DbCommand dbCommand = _Database.GetStoredProcCommand(PROC_USERCUSTOMERSERVICE_UPDATE)) {
-                    _Database.AddInParameter(dbCommand, ID, DbType.Int64, _UserCustomerService.ID);
-                    _Database.AddInParameter(dbCommand, USERID, DbType.Int64, _UserCustomerService.UserId);
-                    _Database.AddInParameter(dbCommand, CUSTOMERID, DbType.Int64, _UserCustomerService.CustomerId);
-                    _Database.AddInParameter(dbCommand, CUSTOMERSERVICEID, DbType.Int64, _UserCustomerService.CustomerServiceId);
-                    _Database.AddInParameter(dbCommand, ISACTIVE, DbType.Boolean, _UserCustomerService.IsActive);
-                    _Database.AddInParameter(dbCommand, UPDATEDBY, DbType.String, _UserCustomerService.UpdatedBy);
-
-                    if (dbTransaction == null) {
-                        return Common.Conversion.ToLong(_Database.ExecuteScalar(dbCommand));
-                    }
-                    else {
-                        return Common.Conversion.ToLong(_Database.ExecuteScalar(dbCommand, dbTransaction));
-                    }
-                }
+                var parameters = new {
+                    ID = _UserCustomerService.ID,
+                    UserId = _UserCustomerService.UserId,
+                    CustomerId = _UserCustomerService.CustomerId,
+                    CustomerServiceId = _UserCustomerService.CustomerServiceId,
+                    IsActive = _UserCustomerService.IsActive,
+                    UpdatedBy = _UserCustomerService.UpdatedBy,
+                };
+                return _connection.ExecuteScalar<long?>(PROC_USERCUSTOMERSERVICE_UPDATE, parameters, dbTransaction, commandType: CommandType.StoredProcedure) ?? 0;
             }
             catch (Exception ex) {
                 throw new Exception("Update", ex);
@@ -80,15 +57,7 @@ namespace Clean.Architecture.Persistance.User {
         }
         private long Delete(long Id, DbTransaction dbTransaction = null) {
             try {
-                using (DbCommand dbCommand = _Database.GetStoredProcCommand(PROC_USERCUSTOMERSERVICE_DELETE)) {
-                    _Database.AddInParameter(dbCommand, ID, DbType.Int64, Id);
-                    if (dbTransaction == null) {
-                        return _Database.ExecuteNonQuery(dbCommand);
-                    }
-                    else {
-                        return _Database.ExecuteNonQuery(dbCommand, dbTransaction);
-                    }
-                }
+                return _connection.Execute(PROC_USERCUSTOMERSERVICE_DELETE, new { ID = Id }, dbTransaction, commandType: CommandType.StoredProcedure);
             }
             catch (Exception ex) {
                 throw new Exception("Delete", ex);
@@ -96,85 +65,18 @@ namespace Clean.Architecture.Persistance.User {
         }
         private long DeleteByUserId(long UserId, DbTransaction dbTransaction = null) {
             try {
-                using (DbCommand dbCommand = _Database.GetStoredProcCommand(PROC_USERCUSTOMERSERVICE_DELETEBYUSERID)) {
-                    _Database.AddInParameter(dbCommand, USERID, DbType.Int64, UserId);
-                    if (dbTransaction == null) {
-                        return _Database.ExecuteNonQuery(dbCommand);
-                    }
-                    else {
-                        return _Database.ExecuteNonQuery(dbCommand, dbTransaction);
-                    }
-                }
+                return _connection.Execute(PROC_USERCUSTOMERSERVICE_DELETEBYUSERID, new { UserId }, dbTransaction, commandType: CommandType.StoredProcedure);
             }
             catch (Exception ex) {
                 throw new Exception("DeleteByUserId", ex);
             }
         }
         private IEnumerable<UserCustomerService> GetByUserId(long UserId) {
-            List<UserCustomerService> userCustomerServiceList = new List<UserCustomerService>();
-            using (DbCommand dbcmdUserCustomerService = _Database.GetStoredProcCommand(PROC_USERCUSTOMERSERVICE_GETBYUSERID)) {
-                _Database.AddInParameter(dbcmdUserCustomerService, USERID, DbType.Int64, UserId);
-                using (IDataReader reader = _Database.ExecuteReader(dbcmdUserCustomerService)) {
-                    while (reader.Read()) {
-                        userCustomerServiceList.Add(Mapper(reader));
-                    }
-                }
-            }
-            return userCustomerServiceList;
+            return _connection.Query<UserCustomerService>(PROC_USERCUSTOMERSERVICE_GETBYUSERID, new { UserId }, commandType: CommandType.StoredProcedure);
         }
         private UserCustomerService GetById(long Id) {
-            UserCustomerService userCustomerService = null;
-            using (DbCommand dbcmdUserCustomerService = _Database.GetStoredProcCommand(PROC_USERCUSTOMERSERVICE_GETBYID)) {
-                _Database.AddInParameter(dbcmdUserCustomerService, ID, DbType.Int64, Id);
-                using (IDataReader reader = _Database.ExecuteReader(dbcmdUserCustomerService)) {
-                    if (reader.Read()) {
-                        userCustomerService = Mapper(reader);
-                    }
-                }
-            }
-            return userCustomerService;
+            return _connection.QueryFirstOrDefault<UserCustomerService>(PROC_USERCUSTOMERSERVICE_GETBYID, new { ID = Id }, commandType: CommandType.StoredProcedure);
         }
-        private UserCustomerService Mapper(IDataReader reader) {
-            UserCustomerService _UserCustomerService = new UserCustomerService();
-            if (reader[ID] != null && reader[ID] != DBNull.Value) {
-                _UserCustomerService.ID = Common.Conversion.ToLong(reader[ID]);
-            }
-
-            if (reader[USERID] != null && reader[USERID] != DBNull.Value) {
-                _UserCustomerService.UserId = Common.Conversion.ToLong(reader[USERID]);
-            }
-
-            if (reader[CUSTOMERID] != null && reader[CUSTOMERID] != DBNull.Value) {
-                _UserCustomerService.CustomerId = Common.Conversion.ToLong(reader[CUSTOMERID]);
-            }
-
-            if (reader[CUSTOMERSERVICEID] != null && reader[CUSTOMERSERVICEID] != DBNull.Value) {
-                _UserCustomerService.CustomerServiceId = Common.Conversion.ToLong(reader[CUSTOMERSERVICEID]);
-            }
-
-            if (reader[ISACTIVE] != null && reader[ISACTIVE] != DBNull.Value) {
-                _UserCustomerService.IsActive = Common.Conversion.ToBool(reader[ISACTIVE]);
-            }
-
-            if (reader[CREATEDBY] != null && reader[CREATEDBY] != DBNull.Value) {
-                _UserCustomerService.CreatedBy = Common.Conversion.ToString(reader[CREATEDBY]);
-            }
-
-            if (reader[CREATEDDATE] != null && reader[CREATEDDATE] != DBNull.Value) {
-                _UserCustomerService.CreatedDate = Common.Conversion.ToDateTime(reader[CREATEDDATE]);
-            }
-
-            if (reader[UPDATEDBY] != null && reader[UPDATEDBY] != DBNull.Value) {
-                _UserCustomerService.UpdatedBy = Common.Conversion.ToString(reader[UPDATEDBY]);
-            }
-
-            if (reader[UPDATEDDATE] != null && reader[UPDATEDDATE] != DBNull.Value) {
-                _UserCustomerService.UpdatedDate = Common.Conversion.ToDateTime(reader[UPDATEDDATE]);
-            }
-
-            return _UserCustomerService;
-        }
-
         #endregion Private Functions
         #region Public Functions
         public void SaveUserCustomerServices(long UserId, List<UserCustomerService> UserCustomerServiceList, DbTransaction dbTransaction = null) {

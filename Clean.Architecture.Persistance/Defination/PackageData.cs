@@ -1,84 +1,27 @@
 using Clean.Architecture.Domain.Defination;
 using Clean.Architecture.Domain.Interfaces.Defination;
 
-using Microsoft.Practices.EnterpriseLibrary.Data;
+using Dapper;
 
-using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 
 namespace Clean.Architecture.Persistance.Defination {
     public class PackageData : IPackageData {
-        private readonly Database _Database;
-        public PackageData(Database Database) {
-            _Database = Database;
+        private readonly IDbConnection _connection;
+        public PackageData(IDbConnection connection) {
+            _connection = connection;
         }
         #region SQL Procedures
         private const string PROC_PACKAGE_GETALL = "[Defination].[Proc_Package_GetAll]";
         private const string PROC_PACKAGE_GETBYID = "[Defination].[Proc_Package_GetById]";
         #endregion SQL Procedures
-        #region Parameters
-        private const string ID = "ID";
-        private const string TITLE = "Title";
-        private const string DETAIL = "Detail";
-        private const string ISACTIVE = "IsActive";
-        private const string CREATEDBY = "CreatedBy";
-        private const string CREATEDDATE = "CreatedDate";
-        private const string UPDATEDBY = "UpdatedBy";
-        private const string UPDATEDDATE = "UpdatedDate";
-        #endregion Parameters
         #region Private Functions
         private IEnumerable<Package> GetActivePackages() {
-            List<Package> packageList = new List<Package>();
-            using (DbCommand dbcmdPackage = _Database.GetStoredProcCommand(PROC_PACKAGE_GETALL)) {
-                using (IDataReader reader = _Database.ExecuteReader(dbcmdPackage)) {
-                    while (reader.Read()) {
-                        packageList.Add(Mapper(reader));
-                    }
-                }
-            }
-            return packageList;
+            return _connection.Query<Package>(PROC_PACKAGE_GETALL, commandType: CommandType.StoredProcedure);
         }
         private Package GetPackage(int Id) {
-            Package package = null;
-            using (DbCommand dbcmdPackage = _Database.GetStoredProcCommand(PROC_PACKAGE_GETBYID)) {
-                _Database.AddInParameter(dbcmdPackage, ID, DbType.Int32, Id);
-                using (IDataReader reader = _Database.ExecuteReader(dbcmdPackage)) {
-                    if (reader.Read()) {
-                        package = Mapper(reader);
-                    }
-                }
-            }
-            return package;
-        }
-        private Package Mapper(IDataReader reader) {
-            Package _Package = new Package();
-            if (reader[ID] != null && reader[ID] != DBNull.Value) {
-                _Package.ID = Common.Conversion.ToInt(reader[ID]);
-            }
-            if (reader[TITLE] != null && reader[TITLE] != DBNull.Value) {
-                _Package.Title = Common.Conversion.ToString(reader[TITLE]);
-            }
-            if (reader[DETAIL] != null && reader[DETAIL] != DBNull.Value) {
-                _Package.Detail = Common.Conversion.ToString(reader[DETAIL]);
-            }
-            if (reader[ISACTIVE] != null && reader[ISACTIVE] != DBNull.Value) {
-                _Package.IsActive = Common.Conversion.ToBool(reader[ISACTIVE]);
-            }
-            if (reader[CREATEDBY] != null && reader[CREATEDBY] != DBNull.Value) {
-                _Package.CreatedBy = Common.Conversion.ToString(reader[CREATEDBY]);
-            }
-            if (reader[CREATEDDATE] != null && reader[CREATEDDATE] != DBNull.Value) {
-                _Package.CreatedDate = Common.Conversion.ToDateTime(reader[CREATEDDATE]);
-            }
-            if (reader[UPDATEDBY] != null && reader[UPDATEDBY] != DBNull.Value) {
-                _Package.UpdatedBy = Common.Conversion.ToString(reader[UPDATEDBY]);
-            }
-            if (reader[UPDATEDDATE] != null && reader[UPDATEDDATE] != DBNull.Value) {
-                _Package.UpdatedDate = Common.Conversion.ToDateTime(reader[UPDATEDDATE]);
-            }
-            return _Package;
+            return _connection.QueryFirstOrDefault<Package>(PROC_PACKAGE_GETBYID, new { ID = Id }, commandType: CommandType.StoredProcedure);
         }
         #endregion Private Functions
         #region Public Functions

@@ -1,74 +1,48 @@
 using Clean.Architecture.Domain.Defination;
 using Clean.Architecture.Domain.Interfaces.Defination;
 
-using Microsoft.Practices.EnterpriseLibrary.Data;
+using Dapper;
 
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
+using System.Linq;
 
 namespace Clean.Architecture.Persistance.Defination {
     public class SufixData : ISufixData {
-        private readonly Database _Database;
-        public SufixData(Database Database) {
-            _Database = Database;
+        private readonly IDbConnection _connection;
+        public SufixData(IDbConnection connection) {
+            _connection = connection;
         }
         #region SQL Procedures
         private const string PROC_SUFIX_GETALL = "[Defination].[Proc_Sufix_GetAll]";
         private const string PROC_SUFIX_GETBYID = "[Defination].[Proc_Sufix_GetById]";
         #endregion SQL Procedures
-        #region Parameters
-        private const string ID = "ID";
-        private const string SUFIXTITLE = "SufixTitle";
-        private const string ISACITVE = "IsAcitve";
-        #endregion Parameters
         #region Private Functions
         private IEnumerable<Sufix> GetActiveSufixs() {
-            List<Sufix> sufixList = new List<Sufix>();
-            using (DbCommand dbcmdSufix = _Database.GetStoredProcCommand(PROC_SUFIX_GETALL)) {
-                using (IDataReader reader = _Database.ExecuteReader(dbcmdSufix)) {
-                    while (reader.Read()) {
-                        sufixList.Add(Mapper(reader));
-                    }
-                }
-            }
-            return sufixList;
+            IEnumerable<dynamic> rows = _connection.Query(PROC_SUFIX_GETALL, commandType: CommandType.StoredProcedure);
+            return rows.Select(Mapper).ToList();
         }
         private Sufix GetSufix(short Id) {
-            Sufix sufix = null;
-            using (DbCommand dbcmdSufix = _Database.GetStoredProcCommand(PROC_SUFIX_GETBYID)) {
-                _Database.AddInParameter(dbcmdSufix, ID, DbType.Int16, Id);
-                using (IDataReader reader = _Database.ExecuteReader(dbcmdSufix)) {
-                    if (reader.Read()) {
-                        sufix = Mapper(reader);
-                    }
-                }
-            }
-            return sufix;
+            dynamic row = _connection.QueryFirstOrDefault(PROC_SUFIX_GETBYID, new { ID = Id }, commandType: CommandType.StoredProcedure);
+            return row == null ? null : Mapper(row);
         }
-        private Sufix Mapper(IDataReader reader) {
+        private Sufix Mapper(dynamic row) {
+            IDictionary<string, object> columns = row;
             Sufix _Sufix = new Sufix();
-            if (reader[ID] != null && reader[ID] != DBNull.Value) {
-                _Sufix.ID = Common.Conversion.ToShort(reader[ID]);
+            if (columns.TryGetValue("ID", out object id) && id != null) {
+                _Sufix.ID = Convert.ToInt16(id);
             }
 
-            if (reader[SUFIXTITLE] != null && reader[SUFIXTITLE] != DBNull.Value) {
-                _Sufix.SufixTitle = Common.Conversion.ToString(reader[SUFIXTITLE]);
+            if (columns.TryGetValue("SufixTitle", out object sufixTitle) && sufixTitle != null) {
+                _Sufix.SufixTitle = Convert.ToString(sufixTitle);
             }
 
-            try {
-                if (reader[ISACITVE] != null && reader[ISACITVE] != DBNull.Value) {
-                    _Sufix.IsAcitve = Common.Conversion.ToBool(reader[ISACITVE]);
-                }
+            if (columns.TryGetValue("IsAcitve", out object isAcitve) && isAcitve != null) {
+                _Sufix.IsAcitve = Convert.ToBoolean(isAcitve);
             }
-            catch {
-                try {
-                    if (reader["IsActive"] != null && reader["IsActive"] != DBNull.Value) {
-                        _Sufix.IsAcitve = Common.Conversion.ToBool(reader["IsActive"]);
-                    }
-                }
-                catch { }
+            else if (columns.TryGetValue("IsActive", out object isActive) && isActive != null) {
+                _Sufix.IsAcitve = Convert.ToBoolean(isActive);
             }
 
             return _Sufix;

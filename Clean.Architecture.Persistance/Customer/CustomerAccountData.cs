@@ -1,20 +1,21 @@
 using Clean.Architecture.Domain.Customer;
 using Clean.Architecture.Domain.Interfaces.Customer;
 
-using Microsoft.Practices.EnterpriseLibrary.Data;
+using Dapper;
+
+using Microsoft.Data.SqlClient;
 
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
 
 namespace Clean.Architecture.Persistance.Customer {
     public class CustomerAccountData : ICustomerAccountData {
-        private readonly Database _Database;
+        private readonly IDbConnection _connection;
         private readonly ICustomerServiceData _customerServiceData;
-        public CustomerAccountData(Database Database, ICustomerServiceData customerServiceData) {
-            _Database = Database;
+        public CustomerAccountData(IDbConnection connection, ICustomerServiceData customerServiceData) {
+            _connection = connection;
             _customerServiceData = customerServiceData;
         }
         #region SQL Procedures
@@ -26,50 +27,26 @@ namespace Clean.Architecture.Persistance.Customer {
         private const string PROC_CUSTOMERACCOUNT_LOGIN = "[Core].[Proc_CustomerAccount_Login]";
         private const string PROC_CUSTOMERACCOUNT_CHECKAVAILABILITY = "[Core].[Proc_CustomerAccount_CheckAvailability]";
         #endregion SQL Procedures
-        #region Parameters
-        private const string ID = "ID";
-        private const string USERNAME = "UserName";
-        private const string PASSCODE = "PassCode";
-        private const string CUSTOMERNAME = "CustomerName";
-        private const string ADDRESSLINE1 = "AddressLine1";
-        private const string ADDRESSLINE2 = "AddressLine2";
-        private const string ZIPCODE = "ZipCode";
-        private const string CITYNAME = "CityName";
-        private const string STATENAME = "StateName";
-        private const string COUNTRYNAME = "CountryName";
-        private const string LONGITUDE = "Longitude";
-        private const string LATITUDE = "Latitude";
-        private const string ISACTIVE = "IsActive";
-        private const string CREATEDBY = "CreatedBy";
-        private const string CREATEDDATE = "CreatedDate";
-        private const string UPDATEDBY = "UpdatedBy";
-        private const string UPDATEDDATE = "UpdatedDate";
-        #endregion Parameters
         #region Private Functions
         private long Insert(CustomerAccount _CustomerAccount, DbTransaction dbTransaction = null) {
             try {
-                using (DbCommand dbCommand = _Database.GetStoredProcCommand(PROC_CUSTOMERACCOUNT_INSERT)) {
-                    _Database.AddInParameter(dbCommand, ID, DbType.Int64, _CustomerAccount.ID);
-                    _Database.AddInParameter(dbCommand, USERNAME, DbType.String, _CustomerAccount.UserName);
-                    _Database.AddInParameter(dbCommand, PASSCODE, DbType.String, _CustomerAccount.PassCode);
-                    _Database.AddInParameter(dbCommand, CUSTOMERNAME, DbType.String, _CustomerAccount.CustomerName);
-                    _Database.AddInParameter(dbCommand, ADDRESSLINE1, DbType.String, _CustomerAccount.AddressLine1);
-                    _Database.AddInParameter(dbCommand, ADDRESSLINE2, DbType.String, _CustomerAccount.AddressLine2);
-                    _Database.AddInParameter(dbCommand, ZIPCODE, DbType.String, _CustomerAccount.ZipCode);
-                    _Database.AddInParameter(dbCommand, CITYNAME, DbType.String, _CustomerAccount.CityName);
-                    _Database.AddInParameter(dbCommand, STATENAME, DbType.String, _CustomerAccount.StateName);
-                    _Database.AddInParameter(dbCommand, COUNTRYNAME, DbType.String, _CustomerAccount.CountryName);
-                    _Database.AddInParameter(dbCommand, LONGITUDE, DbType.String, _CustomerAccount.Longitude);
-                    _Database.AddInParameter(dbCommand, LATITUDE, DbType.String, _CustomerAccount.Latitude);
-                    _Database.AddInParameter(dbCommand, ISACTIVE, DbType.Boolean, _CustomerAccount.IsActive);
-                    _Database.AddInParameter(dbCommand, CREATEDBY, DbType.String, _CustomerAccount.CreatedBy);
-                    if (dbTransaction == null) {
-                        return Common.Conversion.ToLong(_Database.ExecuteScalar(dbCommand));
-                    }
-                    else {
-                        return Common.Conversion.ToLong(_Database.ExecuteScalar(dbCommand, dbTransaction));
-                    }
-                }
+                var parameters = new {
+                    ID = _CustomerAccount.ID,
+                    UserName = _CustomerAccount.UserName,
+                    PassCode = _CustomerAccount.PassCode,
+                    CustomerName = _CustomerAccount.CustomerName,
+                    AddressLine1 = _CustomerAccount.AddressLine1,
+                    AddressLine2 = _CustomerAccount.AddressLine2,
+                    ZipCode = _CustomerAccount.ZipCode,
+                    CityName = _CustomerAccount.CityName,
+                    StateName = _CustomerAccount.StateName,
+                    CountryName = _CustomerAccount.CountryName,
+                    Longitude = _CustomerAccount.Longitude,
+                    Latitude = _CustomerAccount.Latitude,
+                    IsActive = _CustomerAccount.IsActive,
+                    CreatedBy = _CustomerAccount.CreatedBy,
+                };
+                return _connection.ExecuteScalar<long?>(PROC_CUSTOMERACCOUNT_INSERT, parameters, dbTransaction, commandType: CommandType.StoredProcedure) ?? 0;
             }
             catch (Exception ex) {
                 throw new Exception("Add", ex);
@@ -77,28 +54,23 @@ namespace Clean.Architecture.Persistance.Customer {
         }
         private long Update(CustomerAccount _CustomerAccount, DbTransaction dbTransaction = null) {
             try {
-                using (DbCommand dbCommand = _Database.GetStoredProcCommand(PROC_CUSTOMERACCOUNT_UPDATE)) {
-                    _Database.AddInParameter(dbCommand, ID, DbType.Int64, _CustomerAccount.ID);
-                    _Database.AddInParameter(dbCommand, USERNAME, DbType.String, _CustomerAccount.UserName);
-                    _Database.AddInParameter(dbCommand, PASSCODE, DbType.String, _CustomerAccount.PassCode);
-                    _Database.AddInParameter(dbCommand, CUSTOMERNAME, DbType.String, _CustomerAccount.CustomerName);
-                    _Database.AddInParameter(dbCommand, ADDRESSLINE1, DbType.String, _CustomerAccount.AddressLine1);
-                    _Database.AddInParameter(dbCommand, ADDRESSLINE2, DbType.String, _CustomerAccount.AddressLine2);
-                    _Database.AddInParameter(dbCommand, ZIPCODE, DbType.String, _CustomerAccount.ZipCode);
-                    _Database.AddInParameter(dbCommand, CITYNAME, DbType.String, _CustomerAccount.CityName);
-                    _Database.AddInParameter(dbCommand, STATENAME, DbType.String, _CustomerAccount.StateName);
-                    _Database.AddInParameter(dbCommand, COUNTRYNAME, DbType.String, _CustomerAccount.CountryName);
-                    _Database.AddInParameter(dbCommand, LONGITUDE, DbType.String, _CustomerAccount.Longitude);
-                    _Database.AddInParameter(dbCommand, LATITUDE, DbType.String, _CustomerAccount.Latitude);
-                    _Database.AddInParameter(dbCommand, ISACTIVE, DbType.Boolean, _CustomerAccount.IsActive);
-                    _Database.AddInParameter(dbCommand, UPDATEDBY, DbType.String, _CustomerAccount.UpdatedBy);
-                    if (dbTransaction == null) {
-                        return Common.Conversion.ToLong(_Database.ExecuteScalar(dbCommand));
-                    }
-                    else {
-                        return Common.Conversion.ToLong(_Database.ExecuteScalar(dbCommand, dbTransaction));
-                    }
-                }
+                var parameters = new {
+                    ID = _CustomerAccount.ID,
+                    UserName = _CustomerAccount.UserName,
+                    PassCode = _CustomerAccount.PassCode,
+                    CustomerName = _CustomerAccount.CustomerName,
+                    AddressLine1 = _CustomerAccount.AddressLine1,
+                    AddressLine2 = _CustomerAccount.AddressLine2,
+                    ZipCode = _CustomerAccount.ZipCode,
+                    CityName = _CustomerAccount.CityName,
+                    StateName = _CustomerAccount.StateName,
+                    CountryName = _CustomerAccount.CountryName,
+                    Longitude = _CustomerAccount.Longitude,
+                    Latitude = _CustomerAccount.Latitude,
+                    IsActive = _CustomerAccount.IsActive,
+                    UpdatedBy = _CustomerAccount.UpdatedBy,
+                };
+                return _connection.ExecuteScalar<long?>(PROC_CUSTOMERACCOUNT_UPDATE, parameters, dbTransaction, commandType: CommandType.StoredProcedure) ?? 0;
             }
             catch (Exception ex) {
                 throw new Exception("Update", ex);
@@ -106,15 +78,7 @@ namespace Clean.Architecture.Persistance.Customer {
         }
         private long Delete(long Id, DbTransaction dbTransaction = null) {
             try {
-                using (DbCommand dbCommand = _Database.GetStoredProcCommand(PROC_CUSTOMERACCOUNT_DELETE)) {
-                    _Database.AddInParameter(dbCommand, ID, DbType.Int64, Id);
-                    if (dbTransaction == null) {
-                        return _Database.ExecuteNonQuery(dbCommand);
-                    }
-                    else {
-                        return _Database.ExecuteNonQuery(dbCommand, dbTransaction);
-                    }
-                }
+                return _connection.Execute(PROC_CUSTOMERACCOUNT_DELETE, new { ID = Id }, dbTransaction, commandType: CommandType.StoredProcedure);
             }
             catch (Exception ex) {
                 throw new Exception("Delete", ex);
@@ -122,108 +86,20 @@ namespace Clean.Architecture.Persistance.Customer {
         }
         private long Available(string Username, DbTransaction dbTransaction = null) {
             try {
-                using (DbCommand dbCommand = _Database.GetStoredProcCommand(PROC_CUSTOMERACCOUNT_CHECKAVAILABILITY)) {
-                    _Database.AddInParameter(dbCommand, USERNAME, DbType.String, Username);
-                    object result = (dbTransaction == null)
-                        ? _Database.ExecuteScalar(dbCommand)
-                        : _Database.ExecuteScalar(dbCommand, dbTransaction);
-                    return Common.Conversion.ToLong(result);
-                }
+                return _connection.ExecuteScalar<long?>(PROC_CUSTOMERACCOUNT_CHECKAVAILABILITY, new { UserName = Username }, dbTransaction, commandType: CommandType.StoredProcedure) ?? 0;
             }
             catch (Exception ex) {
                 throw new Exception("Available", ex);
             }
         }
         private IEnumerable<CustomerAccount> GetActiveCustomers() {
-            List<CustomerAccount> customerAccountList = new List<CustomerAccount>();
-            using (DbCommand dbcmdCustomerAccount = _Database.GetStoredProcCommand(PROC_CUSTOMERACCOUNT_GETALL)) {
-                using (IDataReader reader = _Database.ExecuteReader(dbcmdCustomerAccount)) {
-                    while (reader.Read()) {
-                        customerAccountList.Add(Mapper(reader));
-                    }
-                }
-            }
-            return customerAccountList;
+            return _connection.Query<CustomerAccount>(PROC_CUSTOMERACCOUNT_GETALL, commandType: CommandType.StoredProcedure);
         }
         private CustomerAccount GetCustomer(long Id) {
-            CustomerAccount customerAccount = null;
-            using (DbCommand dbcmdCustomerAccount = _Database.GetStoredProcCommand(PROC_CUSTOMERACCOUNT_GETBYID)) {
-                _Database.AddInParameter(dbcmdCustomerAccount, ID, DbType.Int64, Id);
-                using (IDataReader reader = _Database.ExecuteReader(dbcmdCustomerAccount)) {
-                    if (reader.Read()) {
-                        customerAccount = Mapper(reader);
-                    }
-                }
-            }
-            return customerAccount;
+            return _connection.QueryFirstOrDefault<CustomerAccount>(PROC_CUSTOMERACCOUNT_GETBYID, new { ID = Id }, commandType: CommandType.StoredProcedure);
         }
         private CustomerAccount GetUser(string userName, string passWord) {
-            CustomerAccount customerAccount = null;
-            using (DbCommand dbcmdCustomerAccount = _Database.GetStoredProcCommand(PROC_CUSTOMERACCOUNT_LOGIN)) {
-                _Database.AddInParameter(dbcmdCustomerAccount, USERNAME, DbType.String, userName);
-                _Database.AddInParameter(dbcmdCustomerAccount, PASSCODE, DbType.String, passWord);
-                using (IDataReader reader = _Database.ExecuteReader(dbcmdCustomerAccount)) {
-                    if (reader.Read()) {
-                        customerAccount = Mapper(reader);
-                    }
-                }
-            }
-            return customerAccount;
-        }
-        private CustomerAccount Mapper(IDataReader reader) {
-            CustomerAccount _CustomerAccount = new CustomerAccount();
-            if (reader[ID] != null && reader[ID] != DBNull.Value) {
-                _CustomerAccount.ID = Common.Conversion.ToLong(reader[ID]);
-            }
-            if (reader[USERNAME] != null && reader[USERNAME] != DBNull.Value) {
-                _CustomerAccount.UserName = Common.Conversion.ToString(reader[USERNAME]);
-            }
-            if (reader[PASSCODE] != null && reader[PASSCODE] != DBNull.Value) {
-                _CustomerAccount.PassCode = Common.Conversion.ToString(reader[PASSCODE]);
-            }
-            if (reader[CUSTOMERNAME] != null && reader[CUSTOMERNAME] != DBNull.Value) {
-                _CustomerAccount.CustomerName = Common.Conversion.ToString(reader[CUSTOMERNAME]);
-            }
-            if (reader[ADDRESSLINE1] != null && reader[ADDRESSLINE1] != DBNull.Value) {
-                _CustomerAccount.AddressLine1 = Common.Conversion.ToString(reader[ADDRESSLINE1]);
-            }
-            if (reader[ADDRESSLINE2] != null && reader[ADDRESSLINE2] != DBNull.Value) {
-                _CustomerAccount.AddressLine2 = Common.Conversion.ToString(reader[ADDRESSLINE2]);
-            }
-            if (reader[ZIPCODE] != null && reader[ZIPCODE] != DBNull.Value) {
-                _CustomerAccount.ZipCode = Common.Conversion.ToString(reader[ZIPCODE]);
-            }
-            if (reader[CITYNAME] != null && reader[CITYNAME] != DBNull.Value) {
-                _CustomerAccount.CityName = Common.Conversion.ToString(reader[CITYNAME]);
-            }
-            if (reader[STATENAME] != null && reader[STATENAME] != DBNull.Value) {
-                _CustomerAccount.StateName = Common.Conversion.ToString(reader[STATENAME]);
-            }
-            if (reader[COUNTRYNAME] != null && reader[COUNTRYNAME] != DBNull.Value) {
-                _CustomerAccount.CountryName = Common.Conversion.ToString(reader[COUNTRYNAME]);
-            }
-            if (reader[LONGITUDE] != null && reader[LONGITUDE] != DBNull.Value) {
-                _CustomerAccount.Longitude = Common.Conversion.ToString(reader[LONGITUDE]);
-            }
-            if (reader[LATITUDE] != null && reader[LATITUDE] != DBNull.Value) {
-                _CustomerAccount.Latitude = Common.Conversion.ToString(reader[LATITUDE]);
-            }
-            if (reader[ISACTIVE] != null && reader[ISACTIVE] != DBNull.Value) {
-                _CustomerAccount.IsActive = Common.Conversion.ToBool(reader[ISACTIVE]);
-            }
-            if (reader[CREATEDBY] != null && reader[CREATEDBY] != DBNull.Value) {
-                _CustomerAccount.CreatedBy = Common.Conversion.ToString(reader[CREATEDBY]);
-            }
-            if (reader[CREATEDDATE] != null && reader[CREATEDDATE] != DBNull.Value) {
-                _CustomerAccount.CreatedDate = Common.Conversion.ToDateTime(reader[CREATEDDATE]);
-            }
-            if (reader[UPDATEDBY] != null && reader[UPDATEDBY] != DBNull.Value) {
-                _CustomerAccount.UpdatedBy = Common.Conversion.ToString(reader[UPDATEDBY]);
-            }
-            if (reader[UPDATEDDATE] != null && reader[UPDATEDDATE] != DBNull.Value) {
-                _CustomerAccount.UpdatedDate = Common.Conversion.ToDateTime(reader[UPDATEDDATE]);
-            }
-            return _CustomerAccount;
+            return _connection.QueryFirstOrDefault<CustomerAccount>(PROC_CUSTOMERACCOUNT_LOGIN, new { UserName = userName, PassCode = passWord }, commandType: CommandType.StoredProcedure);
         }
         #endregion Private Functions
         #region Public Functions
@@ -243,32 +119,24 @@ namespace Clean.Architecture.Persistance.Customer {
             return GetUser(UserName, Password);
         }
         public long SaveCustomer(CustomerAccount _CustomerAccount) {
-            using (SqlConnection connection = (SqlConnection)_Database.CreateConnection()) {
-                SqlTransaction _transaction = null;
+            SqlConnection connection = (SqlConnection)_connection;
+            if (connection.State != ConnectionState.Open) {
+                connection.Open();
+            }
+            using (SqlTransaction transaction = connection.BeginTransaction()) {
                 try {
-                    connection.Open();
-                    _transaction = connection.BeginTransaction();
-                    long CustomerId = 0;
-                    if (_CustomerAccount.ID == 0) {
-                        CustomerId = Insert(_CustomerAccount, _transaction);
-                    }
-                    else {
-                        CustomerId = Update(_CustomerAccount, _transaction);
-                    }
+                    long CustomerId = (_CustomerAccount.ID == 0)
+                        ? Insert(_CustomerAccount, transaction)
+                        : Update(_CustomerAccount, transaction);
                     if (_CustomerAccount.CustomerServicesList != null) {
-                        _customerServiceData.SaveCustomerServices(CustomerId, _CustomerAccount.CustomerServicesList, _transaction);
+                        _customerServiceData.SaveCustomerServices(CustomerId, _CustomerAccount.CustomerServicesList, transaction);
                     }
-                    _transaction.Commit();
+                    transaction.Commit();
                     return CustomerId;
                 }
                 catch {
-                    if (_transaction != null) {
-                        _transaction.Rollback();
-                    }
+                    transaction.Rollback();
                     throw;
-                }
-                finally {
-                    connection.Close();
                 }
             }
         }

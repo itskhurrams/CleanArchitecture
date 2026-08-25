@@ -1,7 +1,7 @@
 using Clean.Architecture.Domain.Interfaces.User;
 using Clean.Architecture.Domain.User;
 
-using Microsoft.Practices.EnterpriseLibrary.Data;
+using Dapper;
 
 using System;
 using System.Collections.Generic;
@@ -10,9 +10,9 @@ using System.Data.Common;
 
 namespace Clean.Architecture.Persistance.User {
     public class UserAddressData : IUserAddressData {
-        private readonly Database _Database;
-        public UserAddressData(Database Database) {
-            _Database = Database;
+        private readonly IDbConnection _connection;
+        public UserAddressData(IDbConnection connection) {
+            _connection = connection;
         }
         #region SQL Procedures
         private const string PROC_USERADDRESS_INSERT = "[Core].[Proc_UserAddress_Insert]";
@@ -22,49 +22,25 @@ namespace Clean.Architecture.Persistance.User {
         private const string PROC_USERADDRESS_GETBYUSERID = "[Core].[Proc_UserAddress_GetByUserId]";
         private const string PROC_USERADDRESS_DELETEBYUSERID = "[Core].[Proc_UserAddress_DeleteByUserId]";
         #endregion SQL Procedures
-        #region Parameters
-        private const string ID = "ID";
-        private const string ADDRESSTYPEID = "AddressTypeId";
-        private const string USERID = "UserId";
-        private const string ADDRESSLINE1 = "AddressLine1";
-        private const string ADDRESSLINE2 = "AddressLine2";
-        private const string ZIPCODE = "ZipCode";
-        private const string CITYNAME = "CityName";
-        private const string STATENAME = "StateName";
-        private const string COUNTRYNAME = "CountryName";
-        private const string LONGITUDE = "Longitude";
-        private const string LATITUDE = "Latitude";
-        private const string ISACTIVE = "IsActive";
-        private const string CREATEDBY = "CreatedBy";
-        private const string CREATEDDATE = "CreatedDate";
-        private const string UPDATEDBY = "UpdatedBy";
-        private const string UPDATEDDATE = "UpdatedDate";
-        #endregion Parameters
         #region Private Functions
         private long Insert(UserAddress _UserAddress, DbTransaction dbTransaction = null) {
             try {
-                using (DbCommand dbCommand = _Database.GetStoredProcCommand(PROC_USERADDRESS_INSERT)) {
-                    _Database.AddInParameter(dbCommand, ID, DbType.Int64, _UserAddress.ID);
-                    _Database.AddInParameter(dbCommand, ADDRESSTYPEID, DbType.Int16, _UserAddress.AddressTypeId);
-                    _Database.AddInParameter(dbCommand, USERID, DbType.Int64, _UserAddress.UserId);
-                    _Database.AddInParameter(dbCommand, ADDRESSLINE1, DbType.String, _UserAddress.AddressLine1);
-                    _Database.AddInParameter(dbCommand, ADDRESSLINE2, DbType.String, _UserAddress.AddressLine2);
-                    _Database.AddInParameter(dbCommand, ZIPCODE, DbType.String, _UserAddress.ZipCode);
-                    _Database.AddInParameter(dbCommand, CITYNAME, DbType.String, _UserAddress.CityName);
-                    _Database.AddInParameter(dbCommand, STATENAME, DbType.String, _UserAddress.StateName);
-                    _Database.AddInParameter(dbCommand, COUNTRYNAME, DbType.String, _UserAddress.CountryName);
-                    _Database.AddInParameter(dbCommand, LONGITUDE, DbType.String, _UserAddress.Longitude);
-                    _Database.AddInParameter(dbCommand, LATITUDE, DbType.String, _UserAddress.Latitude);
-                    _Database.AddInParameter(dbCommand, ISACTIVE, DbType.Boolean, _UserAddress.IsActive);
-                    _Database.AddInParameter(dbCommand, CREATEDBY, DbType.String, _UserAddress.CreatedBy);
-
-                    if (dbTransaction == null) {
-                        return Common.Conversion.ToLong(_Database.ExecuteScalar(dbCommand));
-                    }
-                    else {
-                        return Common.Conversion.ToLong(_Database.ExecuteScalar(dbCommand, dbTransaction));
-                    }
-                }
+                var parameters = new {
+                    ID = _UserAddress.ID,
+                    AddressTypeId = _UserAddress.AddressTypeId,
+                    UserId = _UserAddress.UserId,
+                    AddressLine1 = _UserAddress.AddressLine1,
+                    AddressLine2 = _UserAddress.AddressLine2,
+                    ZipCode = _UserAddress.ZipCode,
+                    CityName = _UserAddress.CityName,
+                    StateName = _UserAddress.StateName,
+                    CountryName = _UserAddress.CountryName,
+                    Longitude = _UserAddress.Longitude,
+                    Latitude = _UserAddress.Latitude,
+                    IsActive = _UserAddress.IsActive,
+                    CreatedBy = _UserAddress.CreatedBy,
+                };
+                return _connection.ExecuteScalar<long?>(PROC_USERADDRESS_INSERT, parameters, dbTransaction, commandType: CommandType.StoredProcedure) ?? 0;
             }
             catch (Exception ex) {
                 throw new Exception("Add", ex);
@@ -72,28 +48,22 @@ namespace Clean.Architecture.Persistance.User {
         }
         private long Update(UserAddress _UserAddress, DbTransaction dbTransaction = null) {
             try {
-                using (DbCommand dbCommand = _Database.GetStoredProcCommand(PROC_USERADDRESS_UPDATE)) {
-                    _Database.AddInParameter(dbCommand, ID, DbType.Int64, _UserAddress.ID);
-                    _Database.AddInParameter(dbCommand, ADDRESSTYPEID, DbType.Int16, _UserAddress.AddressTypeId);
-                    _Database.AddInParameter(dbCommand, USERID, DbType.Int64, _UserAddress.UserId);
-                    _Database.AddInParameter(dbCommand, ADDRESSLINE1, DbType.String, _UserAddress.AddressLine1);
-                    _Database.AddInParameter(dbCommand, ADDRESSLINE2, DbType.String, _UserAddress.AddressLine2);
-                    _Database.AddInParameter(dbCommand, ZIPCODE, DbType.String, _UserAddress.ZipCode);
-                    _Database.AddInParameter(dbCommand, CITYNAME, DbType.String, _UserAddress.CityName);
-                    _Database.AddInParameter(dbCommand, STATENAME, DbType.String, _UserAddress.StateName);
-                    _Database.AddInParameter(dbCommand, COUNTRYNAME, DbType.String, _UserAddress.CountryName);
-                    _Database.AddInParameter(dbCommand, LONGITUDE, DbType.String, _UserAddress.Longitude);
-                    _Database.AddInParameter(dbCommand, LATITUDE, DbType.String, _UserAddress.Latitude);
-                    _Database.AddInParameter(dbCommand, ISACTIVE, DbType.Boolean, _UserAddress.IsActive);
-                    _Database.AddInParameter(dbCommand, UPDATEDBY, DbType.String, _UserAddress.UpdatedBy);
-
-                    if (dbTransaction == null) {
-                        return Common.Conversion.ToLong(_Database.ExecuteScalar(dbCommand));
-                    }
-                    else {
-                        return Common.Conversion.ToLong(_Database.ExecuteScalar(dbCommand, dbTransaction));
-                    }
-                }
+                var parameters = new {
+                    ID = _UserAddress.ID,
+                    AddressTypeId = _UserAddress.AddressTypeId,
+                    UserId = _UserAddress.UserId,
+                    AddressLine1 = _UserAddress.AddressLine1,
+                    AddressLine2 = _UserAddress.AddressLine2,
+                    ZipCode = _UserAddress.ZipCode,
+                    CityName = _UserAddress.CityName,
+                    StateName = _UserAddress.StateName,
+                    CountryName = _UserAddress.CountryName,
+                    Longitude = _UserAddress.Longitude,
+                    Latitude = _UserAddress.Latitude,
+                    IsActive = _UserAddress.IsActive,
+                    UpdatedBy = _UserAddress.UpdatedBy,
+                };
+                return _connection.ExecuteScalar<long?>(PROC_USERADDRESS_UPDATE, parameters, dbTransaction, commandType: CommandType.StoredProcedure) ?? 0;
             }
             catch (Exception ex) {
                 throw new Exception("Update", ex);
@@ -101,15 +71,7 @@ namespace Clean.Architecture.Persistance.User {
         }
         private long Delete(long Id, DbTransaction dbTransaction = null) {
             try {
-                using (DbCommand dbCommand = _Database.GetStoredProcCommand(PROC_USERADDRESS_DELETE)) {
-                    _Database.AddInParameter(dbCommand, ID, DbType.Int64, Id);
-                    if (dbTransaction == null) {
-                        return _Database.ExecuteNonQuery(dbCommand);
-                    }
-                    else {
-                        return _Database.ExecuteNonQuery(dbCommand, dbTransaction);
-                    }
-                }
+                return _connection.Execute(PROC_USERADDRESS_DELETE, new { ID = Id }, dbTransaction, commandType: CommandType.StoredProcedure);
             }
             catch (Exception ex) {
                 throw new Exception("Delete", ex);
@@ -117,97 +79,18 @@ namespace Clean.Architecture.Persistance.User {
         }
         private long DeleteByUserId(long UserId, DbTransaction dbTransaction = null) {
             try {
-                using (DbCommand dbCommand = _Database.GetStoredProcCommand(PROC_USERADDRESS_DELETEBYUSERID)) {
-                    _Database.AddInParameter(dbCommand, USERID, DbType.Int64, UserId);
-                    if (dbTransaction == null) {
-                        return _Database.ExecuteNonQuery(dbCommand);
-                    }
-                    else {
-                        return _Database.ExecuteNonQuery(dbCommand, dbTransaction);
-                    }
-                }
+                return _connection.Execute(PROC_USERADDRESS_DELETEBYUSERID, new { UserId }, dbTransaction, commandType: CommandType.StoredProcedure);
             }
             catch (Exception ex) {
                 throw new Exception("DeleteByUserId", ex);
             }
         }
         private IEnumerable<UserAddress> GetByUserId(long UserId) {
-            List<UserAddress> userAddressList = new List<UserAddress>();
-            using (DbCommand dbcmdUserAddress = _Database.GetStoredProcCommand(PROC_USERADDRESS_GETBYUSERID)) {
-                _Database.AddInParameter(dbcmdUserAddress, USERID, DbType.Int64, UserId);
-                using (IDataReader reader = _Database.ExecuteReader(dbcmdUserAddress)) {
-                    while (reader.Read()) {
-                        userAddressList.Add(Mapper(reader));
-                    }
-                }
-            }
-            return userAddressList;
+            return _connection.Query<UserAddress>(PROC_USERADDRESS_GETBYUSERID, new { UserId }, commandType: CommandType.StoredProcedure);
         }
         private UserAddress GetById(long Id) {
-            UserAddress userAddress = null;
-            using (DbCommand dbcmdUserAddress = _Database.GetStoredProcCommand(PROC_USERADDRESS_GETBYID)) {
-                _Database.AddInParameter(dbcmdUserAddress, ID, DbType.Int64, Id);
-                using (IDataReader reader = _Database.ExecuteReader(dbcmdUserAddress)) {
-                    if (reader.Read()) {
-                        userAddress = Mapper(reader);
-                    }
-                }
-            }
-            return userAddress;
+            return _connection.QueryFirstOrDefault<UserAddress>(PROC_USERADDRESS_GETBYID, new { ID = Id }, commandType: CommandType.StoredProcedure);
         }
-        private UserAddress Mapper(IDataReader reader) {
-            UserAddress _UserAddress = new UserAddress();
-            if (reader[ID] != null && reader[ID] != DBNull.Value) {
-                _UserAddress.ID = Common.Conversion.ToLong(reader[ID]);
-            }
-            if (reader[ADDRESSTYPEID] != null && reader[ADDRESSTYPEID] != DBNull.Value) {
-                _UserAddress.AddressTypeId = Common.Conversion.ToShort(reader[ADDRESSTYPEID]);
-            }
-            if (reader[USERID] != null && reader[USERID] != DBNull.Value) {
-                _UserAddress.UserId = Common.Conversion.ToLong(reader[USERID]);
-            }
-            if (reader[ADDRESSLINE1] != null && reader[ADDRESSLINE1] != DBNull.Value) {
-                _UserAddress.AddressLine1 = Common.Conversion.ToString(reader[ADDRESSLINE1]);
-            }
-            if (reader[ADDRESSLINE2] != null && reader[ADDRESSLINE2] != DBNull.Value) {
-                _UserAddress.AddressLine2 = Common.Conversion.ToString(reader[ADDRESSLINE2]);
-            }
-            if (reader[ZIPCODE] != null && reader[ZIPCODE] != DBNull.Value) {
-                _UserAddress.ZipCode = Common.Conversion.ToString(reader[ZIPCODE]);
-            }
-            if (reader[CITYNAME] != null && reader[CITYNAME] != DBNull.Value) {
-                _UserAddress.CityName = Common.Conversion.ToString(reader[CITYNAME]);
-            }
-            if (reader[STATENAME] != null && reader[STATENAME] != DBNull.Value) {
-                _UserAddress.StateName = Common.Conversion.ToString(reader[STATENAME]);
-            }
-            if (reader[COUNTRYNAME] != null && reader[COUNTRYNAME] != DBNull.Value) {
-                _UserAddress.CountryName = Common.Conversion.ToString(reader[COUNTRYNAME]);
-            }
-            if (reader[LONGITUDE] != null && reader[LONGITUDE] != DBNull.Value) {
-                _UserAddress.Longitude = Common.Conversion.ToString(reader[LONGITUDE]);
-            }
-            if (reader[LATITUDE] != null && reader[LATITUDE] != DBNull.Value) {
-                _UserAddress.Latitude = Common.Conversion.ToString(reader[LATITUDE]);
-            }
-            if (reader[ISACTIVE] != null && reader[ISACTIVE] != DBNull.Value) {
-                _UserAddress.IsActive = Common.Conversion.ToBool(reader[ISACTIVE]);
-            }
-            if (reader[CREATEDBY] != null && reader[CREATEDBY] != DBNull.Value) {
-                _UserAddress.CreatedBy = Common.Conversion.ToString(reader[CREATEDBY]);
-            }
-            if (reader[CREATEDDATE] != null && reader[CREATEDDATE] != DBNull.Value) {
-                _UserAddress.CreatedDate = Common.Conversion.ToDateTime(reader[CREATEDDATE]);
-            }
-            if (reader[UPDATEDBY] != null && reader[UPDATEDBY] != DBNull.Value) {
-                _UserAddress.UpdatedBy = Common.Conversion.ToString(reader[UPDATEDBY]);
-            }
-            if (reader[UPDATEDDATE] != null && reader[UPDATEDDATE] != DBNull.Value) {
-                _UserAddress.UpdatedDate = Common.Conversion.ToDateTime(reader[UPDATEDDATE]);
-            }
-            return _UserAddress;
-        }
-
         #endregion Private Functions
         #region Public Functions
         public void SaveUserAddresses(long UserId, List<UserAddress> UserAddressList, DbTransaction dbTransaction = null) {

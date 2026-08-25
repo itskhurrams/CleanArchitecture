@@ -1,56 +1,23 @@
 using Clean.Architecture.Domain.Defination;
 using Clean.Architecture.Domain.Interfaces.Defination;
 
-using Microsoft.Practices.EnterpriseLibrary.Data;
+using Dapper;
 
-using System;
 using System.Data;
-using System.Data.Common;
 
 namespace Clean.Architecture.Persistance.Defination {
     public class AdminAccountData : IAdminAccountData {
-        private readonly Database _Database;
-        public AdminAccountData(Database Database) {
-            _Database = Database;
+        private readonly IDbConnection _connection;
+        public AdminAccountData(IDbConnection connection) {
+            _connection = connection;
         }
         #region SQL Procedures
         private const string PROC_ADMINACCOUNT_LOGIN = "[Core].[Proc_AdminAccount_Login]";
         #endregion SQL Procedures
 
-        #region Parameters
-        private const string ID = "ID";
-        private const string USERNAME = "UserName";
-        private const string PASSCODE = "PassCode";
-        #endregion Parameters
         #region Private Functions
         private AdminAccount GetUser(string userName, string passWord) {
-            AdminAccount adminAccount = null;
-            using (DbCommand dbcmdAdminAccount = _Database.GetStoredProcCommand(PROC_ADMINACCOUNT_LOGIN)) {
-                _Database.AddInParameter(dbcmdAdminAccount, USERNAME, DbType.String, userName);
-                _Database.AddInParameter(dbcmdAdminAccount, PASSCODE, DbType.String, passWord);
-                using (IDataReader reader = _Database.ExecuteReader(dbcmdAdminAccount)) {
-                    if (reader.Read()) {
-                        adminAccount = Mapper(reader);
-                    }
-                }
-            }
-            return adminAccount;
-        }
-        private AdminAccount Mapper(IDataReader reader) {
-            AdminAccount _AdminAccount = new AdminAccount();
-            if (reader[ID] != null && reader[ID] != DBNull.Value) {
-                _AdminAccount.ID = Common.Conversion.ToLong(reader[ID]);
-            }
-
-            if (reader[USERNAME] != null && reader[USERNAME] != DBNull.Value) {
-                _AdminAccount.UserName = Common.Conversion.ToString(reader[USERNAME]);
-            }
-
-            if (reader[PASSCODE] != null && reader[PASSCODE] != DBNull.Value) {
-                _AdminAccount.PassCode = Common.Conversion.ToString(reader[PASSCODE]);
-            }
-
-            return _AdminAccount;
+            return _connection.QueryFirstOrDefault<AdminAccount>(PROC_ADMINACCOUNT_LOGIN, new { UserName = userName, PassCode = passWord }, commandType: CommandType.StoredProcedure);
         }
         #endregion Private Functions
         #region Public Functions
